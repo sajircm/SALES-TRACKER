@@ -7,142 +7,61 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #ffffff;
-    --bg-secondary: #f5f5f3;
-    --bg-tertiary: #eeede9;
-    --text: #1a1a18;
-    --text-secondary: #6b6b68;
-    --border: rgba(0,0,0,0.12);
-    --border-md: rgba(0,0,0,0.22);
-    --green: #1D9E75;
-    --green-dark: #0F6E56;
-    --green-bg: #E1F5EE;
-    --green-text: #085041;
-    --red-text: #993C1D;
-    --red-bg: #FAECE7;
-    --radius-md: 8px;
-    --radius-lg: 12px;
+    --bg: #ffffff; --bg-secondary: #f5f5f3; --bg-tertiary: #eeede9; --text: #1a1a18;
+    --text-secondary: #6b6b68; --border: rgba(0,0,0,0.12); --border-md: rgba(0,0,0,0.22);
+    --green: #1D9E75; --green-dark: #0F6E56; --green-bg: #E1F5EE; --green-text: #085041;
+    --red-text: #993C1D; --red-bg: #FAECE7; --radius-md: 8px; --radius-lg: 12px;
   }
-
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #1e1e1c;
-      --bg-secondary: #2a2a28;
-      --bg-tertiary: #333330;
-      --text: #f0efea;
-      --text-secondary: #9a9994;
-      --border: rgba(255,255,255,0.1);
-      --border-md: rgba(255,255,255,0.2);
-      --green-bg: #0a2e22;
-      --green-text: #5DCAA5;
-      --red-text: #F0997B;
-      --red-bg: #2e1408;
+      --bg: #1e1e1c; --bg-secondary: #2a2a28; --bg-tertiary: #333330; --text: #f0efea;
+      --text-secondary: #9a9994; --border: rgba(255,255,255,0.1); --border-md: rgba(255,255,255,0.2);
+      --green-bg: #0a2e22; --green-text: #5DCAA5; --red-text: #F0997B; --red-bg: #2e1408;
     }
   }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg-tertiary);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 15px;
-    line-height: 1.5;
-  }
-
-  .topbar {
-    background: var(--bg);
-    border-bottom: 0.5px solid var(--border);
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-tertiary); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.5; }
+  .topbar { background: var(--bg); border-bottom: 0.5px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; flex-wrap: wrap; gap: 10px; }
   .topbar-title { font-size: 16px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
   .topbar-title i { color: var(--green); font-size: 20px; }
   .topbar-sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
   #record-count { font-size: 12px; color: var(--text-secondary); background: var(--bg-secondary); padding: 2px 8px; border-radius: 20px; }
-
   .container { max-width: 1100px; margin: 0 auto; padding: 16px 10px; }
-
   .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
-  @media (min-width: 600px) {
-    .stats-grid { grid-template-columns: repeat(4, 1fr); }
-  }
+  @media (min-width: 600px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
   .stat { background: var(--bg); border-radius: var(--radius-md); padding: 12px; border: 0.5px solid var(--border); }
   .stat-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
   .stat-value { font-size: 18px; font-weight: 600; color: var(--text); }
   .stat-value.green { color: var(--green); }
-
   .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 16px; overflow: hidden; }
   .card-header { padding: 12px 16px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
   .card-title { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
-  .card-title i { color: var(--green); }
   .card-body { padding: 16px; }
-
   .form-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  @media (min-width: 580px) {
-    .form-grid { grid-template-columns: repeat(3, 1fr); }
-  }
+  @media (min-width: 580px) { .form-grid { grid-template-columns: repeat(3, 1fr); } }
   .field { display: flex; flex-direction: column; gap: 5px; }
   .field label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
-  .field input, .field select {
-    font-size: 14px; padding: 10px 12px;
-    border-radius: var(--radius-md);
-    border: 0.5px solid var(--border-md);
-    background: var(--bg-secondary);
-    color: var(--text);
-    width: 100%; outline: none; -webkit-appearance: none;
-  }
-  .field input:focus, .field select:focus { border-color: var(--green); }
-
-  .profit-preview {
-    background: var(--green-bg); border-radius: var(--radius-md);
-    padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
-    margin-top: 14px;
-  }
+  .field input, .field select { font-size: 14px; padding: 10px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: var(--bg-secondary); color: var(--text); width: 100%; outline: none; }
+  .profit-preview { background: var(--green-bg); border-radius: var(--radius-md); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
   .profit-preview-label { font-size: 13px; color: var(--green-text); display: flex; align-items: center; gap: 6px; }
   .profit-preview-val { font-size: 20px; font-weight: 600; color: var(--green); }
-
-  .btn-add {
-    background: var(--green); color: #fff; border: none;
-    border-radius: var(--radius-md); padding: 12px 22px;
-    font-size: 15px; font-weight: 600; cursor: pointer;
-    margin-top: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-    width: 100%;
-  }
+  .btn-add { background: var(--green); color: #fff; border: none; border-radius: var(--radius-md); padding: 12px 22px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 100%; }
   .btn-add:disabled { background: var(--text-secondary); opacity: 0.6; }
-
   .month-grid { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 12px; }
   @media (min-width: 580px) { .month-grid { grid-template-columns: repeat(3, 1fr); } }
   .month-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px; }
   .month-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
   .month-name { font-size: 14px; font-weight: 600; color: var(--text); }
   .month-meta { font-size: 11px; color: var(--text-secondary); }
-  .month-delivery-meta { font-size: 11px; color: var(--red-text); }
   .month-profit { font-size: 18px; font-weight: 700; color: var(--green); }
   .bar-bg { height: 4px; background: var(--border); border-radius: 99px; }
   .bar-fill { height: 4px; background: var(--green); border-radius: 99px; }
-
   .filter-row { display: flex; gap: 6px; flex-wrap: wrap; width: 100%; margin-top: 4px; }
-  .filter-row select, .filter-row input {
-    font-size: 12px; padding: 8px; border-radius: var(--radius-md);
-    border: 0.5px solid var(--border-md); background: var(--bg-secondary);
-    color: var(--text); flex: 1; min-width: 100px;
-  }
-
+  .filter-row select, .filter-row input { font-size: 12px; padding: 8px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: var(--bg-secondary); color: var(--text); flex: 1; min-width: 100px; }
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 750px; }
   th { background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; padding: 10px 12px; text-align: left; border-bottom: 0.5px solid var(--border); text-transform: uppercase; letter-spacing: 0.4px; font-size: 11px; }
   td { padding: 10px 12px; border-bottom: 0.5px solid var(--border); color: var(--text); }
-  tr:last-child td { border-bottom: none; }
-
   .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
   .badge-invoice { background: #E6F1FB; color: #0C447C; }
   .badge-card    { background: #EEEDFE; color: #3C3489; }
@@ -150,12 +69,8 @@
   .badge-flyer   { background: #EAF3DE; color: #27500A; }
   .badge-sticker { background: #FAECE7; color: #712B13; }
   .badge-other   { background: var(--bg-secondary); color: var(--text-secondary); }
-
   .profit-cell { font-weight: 600; color: var(--green); }
   .delivery-cell { color: var(--red-text); }
-
-  .btn-del { background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px; font-size: 15px; }
-
   .empty-msg { text-align: center; padding: 2rem; color: var(--text-secondary); font-size: 13px; width: 100%; }
   .sync-indicator { font-size: 11px; color: var(--text-secondary); display: block; text-align: center; margin-top: 6px; font-style: italic; }
   footer { text-align: center; font-size: 11px; color: var(--text-secondary); padding: 20px; }
@@ -166,13 +81,13 @@
 <div class="topbar">
   <div>
     <div class="topbar-title"><i class="ti ti-printer"></i> Commercial Printing Log</div>
-    <div class="topbar-sub">Personal sales & profit tracker</div>
+    <div class="topbar-sub">Cloud Synchronized Tracker</div>
   </div>
-  <div id="record-count">0 records</div>
+  <div id="record-count">Loading...</div>
 </div>
 
 <div class="container">
-
+  <!-- Stats -->
   <div class="stats-grid">
     <div class="stat"><div class="stat-label">Total Revenue</div><div class="stat-value" id="stat-revenue">0.00</div></div>
     <div class="stat"><div class="stat-label">Total Cost</div><div class="stat-value" id="stat-cost">0.00</div></div>
@@ -180,10 +95,9 @@
     <div class="stat"><div class="stat-label">Cumulative Profit</div><div class="stat-value green" id="stat-profit">0.00</div></div>
   </div>
 
+  <!-- Add Entry -->
   <div class="card">
-    <div class="card-header">
-      <div class="card-title"><i class="ti ti-circle-plus"></i> New Entry</div>
-    </div>
+    <div class="card-header"><div class="card-title"><i class="ti ti-circle-plus"></i> New Entry</div></div>
     <div class="card-body">
       <div class="form-grid">
         <div class="field"><label>Date</label><input type="date" id="f-date"></div>
@@ -201,83 +115,74 @@
         <div class="field"><label>Qty</label><input type="number" id="f-qty" min="1" placeholder="e.g. 1000"></div>
         <div class="field"><label>Cost Amount</label><input type="number" id="f-cost" step="0.01" placeholder="0.00"></div>
         <div class="field"><label>Selling Amount</label><input type="number" id="f-sell" step="0.01" placeholder="0.00"></div>
-        <div class="field">
-          <label>Delivery Charge</label>
-          <input type="number" id="f-delivery" step="0.01" placeholder="0.00">
-        </div>
+        <div class="field"><label>Delivery Charge</label><input type="number" id="f-delivery" step="0.01" placeholder="0.00"></div>
       </div>
       <div class="profit-preview">
         <span class="profit-preview-label"><i class="ti ti-trending-up"></i> Est. Net Profit</span>
         <span class="profit-preview-val" id="profit-preview">0.00</span>
       </div>
       <button id="btn-submit" class="btn-add" onclick="addEntry()"><i class="ti ti-plus"></i> Add & Sync Entry</button>
-      <span id="sync-status" class="sync-indicator"></span>
+      <span id="sync-status" class="sync-indicator">Fetching latest data from Sheet...</span>
     </div>
   </div>
 
+  <!-- Monthly Summary -->
   <div class="card">
-    <div class="card-header">
-      <div class="card-title"><i class="ti ti-calendar-stats"></i> Monthly Profit Summary</div>
-    </div>
-    <div class="month-grid" id="month-grid">
-      <div class="empty-msg">No data yet.</div>
-    </div>
+    <div class="card-header"><div class="card-title"><i class="ti ti-calendar-stats"></i> Monthly Profit Summary</div></div>
+    <div class="month-grid" id="month-grid"><div class="empty-msg">Loading summary...</div></div>
   </div>
 
+  <!-- Transactions Table -->
   <div class="card">
     <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 8px;">
-      <div class="card-title"><i class="ti ti-list"></i> Recent Transactions (Local List)</div>
+      <div class="card-title"><i class="ti ti-list"></i> Sheet Records</div>
       <div class="filter-row">
         <select id="filter-month" onchange="renderAll()">
           <option value="">All Months</option>
-          <option value="1">January</option><option value="2">February</option>
-          <option value="3">March</option><option value="4">April</option>
-          <option value="5">May</option><option value="6">June</option>
-          <option value="7">July</option><option value="8">August</option>
-          <option value="9">September</option><option value="10">October</option>
-          <option value="11">November</option><option value="12">December</option>
+          <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+          <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+          <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+          <option value="10">October</option><option value="11">November</option><option value="12">December</option>
         </select>
         <select id="filter-type" onchange="renderAll()">
           <option value="">All Types</option>
-          <option>TAX INVOICE</option><option>JOB ORDER</option>
-          <option>BUSINESS CARD</option><option>FLYER</option><option>STICKER</option><option>OTHER</option>
+          <option>TAX INVOICE</option><option>JOB ORDER</option><option>BUSINESS CARD</option>
+          <option>FLYER</option><option>STICKER</option><option>OTHER</option>
         </select>
         <input type="text" id="filter-search" placeholder="Search company..." oninput="renderAll()">
       </div>
     </div>
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr>
-            <th>Date</th><th>Company</th><th>Item</th><th>Qty</th><th>Cost</th><th>Selling</th><th>Delivery</th><th>Profit</th><th></th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
+        <thead><tr><th>Date</th><th>Company</th><th>Item</th><th>Qty</th><th>Cost</th><th>Selling</th><th>Delivery</th><th>Profit</th></tr></thead>
+        <tbody id="tbody"><tr><td colspan="8" class="empty-msg">Loading data...</td></tr></tbody>
       </table>
     </div>
   </div>
-
 </div>
 
-<footer>Commercial Printing Log &mdash; Personal Use</footer>
+<footer>Commercial Printing Log &mdash; Cloud Connected</footer>
 
 <script>
-// Google Apps Script Web App URL kooticherthu
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzP9VbN991izdbo0k60RcKmvOg2XpZn8dVNhMMG5xPVy266WoSz8kYX5a9t55I1AvyC5g/exec"; 
+// നിങ്ങളുടെ പുതിയ അപ്ഡേറ്റ് ചെയ്ത വെബ് ആപ്പ് ലിങ്ക് ഇവിടെ നൽകിയിട്ടുണ്ട്
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyjaG4n-o8PKWhVPYwszlfGHi-uX9UyBbE-DyEqrjxSf7TbgQ029R4mIFagCr_YMHGjQg/exec"; 
 
 const MONTHS = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 const ITEMS = {'TAX INVOICE':'invoice','JOB ORDER':'job','BUSINESS CARD':'card','FLYER':'flyer','STICKER':'sticker','OTHER':'other'};
-const STORE_KEY = 'cptl_fresh_entries';
 
 let entries = [];
 
-function load() {
+async function loadFromSheet() {
+  const statusTxt = document.getElementById('sync-status');
+  if(!WEB_APP_URL) return;
   try {
-    const saved = localStorage.getItem(STORE_KEY);
-    if (saved) { entries = JSON.parse(saved); }
-    document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
-  } catch(e) { entries = []; }
-  renderAll();
+    let response = await fetch(WEB_APP_URL);
+    entries = await response.json();
+    statusTxt.textContent = "✅ Cloud Sync Active";
+    renderAll();
+  } catch(e) {
+    statusTxt.textContent = "⚠️ Could not sync live data. Showing offline data.";
+  }
 }
 
 function getMonth(date) { return parseInt((date||'').split('-')[1]||0); }
@@ -310,14 +215,12 @@ async function addEntry() {
   const btn = document.getElementById('btn-submit');
   const statusTxt = document.getElementById('sync-status');
   btn.disabled = true;
-  statusTxt.textContent = "Syncing with Google Sheet...";
+  statusTxt.textContent = "Sending to Google Sheet...";
 
-  // 1. Local storage-ilekk save cheyyunnu
+  // താൽക്കാലികമായി ഉടൻ തന്നെ ലിസ്റ്റിലേക്ക് ചേർക്കുന്നു
   entries.unshift(newLog);
-  localStorage.setItem(STORE_KEY, JSON.stringify(entries));
   renderAll();
 
-  // 2. Google Sheet-ilekk data ayakkunnu
   if (WEB_APP_URL) {
     try {
       await fetch(WEB_APP_URL, {
@@ -326,28 +229,20 @@ async function addEntry() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newLog)
       });
-      statusTxt.textContent = "✅ Saved & Synced to Google Drive!";
+      statusTxt.textContent = "✅ Successfully Saved & Synced!";
+      setTimeout(loadFromSheet, 2000); // 2 സെക്കൻഡിന് ശേഷം ഡാറ്റ വീണ്ടും ഫ്രഷ് ചെയ്യും
     } catch (err) {
-      statusTxt.textContent = "⚠️ Saved locally, but Sheet sync failed.";
+      statusTxt.textContent = "⚠️ Network issue. Please refresh.";
     }
   }
 
-  // Form fields reset cheyyunnu
   ['f-company','f-qty','f-cost','f-sell','f-delivery'].forEach(id => { document.getElementById(id).value=''; });
   document.getElementById('profit-preview').textContent = '0.00';
   btn.disabled = false;
 }
 
-function deleteEntry(id) {
-  if (!confirm('Local list-il ninnu mattanano?')) return;
-  entries = entries.filter(e => e.id !== id);
-  localStorage.setItem(STORE_KEY, JSON.stringify(entries));
-  renderAll();
-}
-
 function getBadge(item) {
-  const cls = ITEMS[item]||'other';
-  return `<span class="badge badge-${cls}">${item}</span>`;
+  return `<span class="badge badge-${ITEMS[item]||'other'}">${item}</span>`;
 }
 
 function renderAll() {
@@ -362,7 +257,6 @@ function renderAll() {
     return true;
   });
 
-  // Stats update cheyyunnu
   const tot = k => filtered.reduce((s,e)=>s+e[k], 0);
   document.getElementById('stat-revenue').textContent = tot('sell').toFixed(2);
   document.getElementById('stat-cost').textContent = tot('cost').toFixed(2);
@@ -370,30 +264,24 @@ function renderAll() {
   document.getElementById('stat-profit').textContent = tot('profit').toFixed(2);
   document.getElementById('record-count').textContent = filtered.length + ' records';
 
-  // Monthly summary tayyarakkunnu
   const monthlyMap = {};
   filtered.forEach(e => {
-    const mm = getMonth(e.date);
-    if (!mm) return;
-    if (!monthlyMap[mm]) monthlyMap[mm] = {profit:0, count:0, delivery:0};
+    const mm = getMonth(e.date); if (!mm) return;
+    if (!monthlyMap[mm]) monthlyMap[mm] = {profit:0, count:0};
     monthlyMap[mm].profit += e.profit;
-    monthlyMap[mm].delivery += e.delivery;
     monthlyMap[mm].count++;
   });
-  const monthKeys = Object.keys(monthlyMap).map(Number).sort((a,b)=>a-b);
+  
   const mGrid = document.getElementById('month-grid');
+  const monthKeys = Object.keys(monthlyMap).map(Number).sort((a,b)=>a-b);
   if (!monthKeys.length) {
-    mGrid.innerHTML = '<div class="empty-msg">No monthly summary data.</div>';
+    mGrid.innerHTML = '<div class="empty-msg">No summary.</div>';
   } else {
     const maxP = Math.max(...monthKeys.map(k=>monthlyMap[k].profit), 1);
     mGrid.innerHTML = monthKeys.map(mm=>`
       <div class="month-card">
         <div class="month-top">
-          <div>
-            <div class="month-name">${MONTHS[mm]}</div>
-            <div class="month-meta">${monthlyMap[mm].count} items</div>
-            ${monthlyMap[mm].delivery>0?`<div class="month-delivery-meta">🚚 Del: ${monthlyMap[mm].delivery.toFixed(2)}</div>`:''}
-          </div>
+          <div><div class="month-name">${MONTHS[mm]}</div><div class="month-meta">${monthlyMap[mm].count} items</div></div>
           <div class="month-profit">${monthlyMap[mm].profit.toFixed(2)}</div>
         </div>
         <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(monthlyMap[mm].profit/maxP*100)}%"></div></div>
@@ -401,10 +289,9 @@ function renderAll() {
     `).join('');
   }
 
-  // Data table render cheyyunnu
   const tbody = document.getElementById('tbody');
   if(!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="9" class="empty-msg">No records found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">No records found.</td></tr>';
     return;
   }
   tbody.innerHTML = filtered.map(e => `
@@ -417,12 +304,12 @@ function renderAll() {
       <td>${e.sell.toFixed(2)}</td>
       <td class="delivery-cell">${e.delivery > 0 ? '− '+e.delivery.toFixed(2) : '—'}</td>
       <td class="profit-cell">${e.profit.toFixed(2)}</td>
-      <td><button class="btn-del" onclick="deleteEntry(${e.id})"><i class="ti ti-trash"></i></button></td>
     </tr>
   `).join('');
 }
 
-load();
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+loadFromSheet();
 </script>
 </body>
 </html>

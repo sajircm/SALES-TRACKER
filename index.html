@@ -87,7 +87,6 @@
 </div>
 
 <div class="container">
-  <!-- Stats -->
   <div class="stats-grid">
     <div class="stat"><div class="stat-label">Total Revenue</div><div class="stat-value" id="stat-revenue">0.00</div></div>
     <div class="stat"><div class="stat-label">Total Cost</div><div class="stat-value" id="stat-cost">0.00</div></div>
@@ -95,7 +94,6 @@
     <div class="stat"><div class="stat-label">Cumulative Profit</div><div class="stat-value green" id="stat-profit">0.00</div></div>
   </div>
 
-  <!-- Add Entry -->
   <div class="card">
     <div class="card-header"><div class="card-title"><i class="ti ti-circle-plus"></i> New Entry</div></div>
     <div class="card-body">
@@ -126,13 +124,11 @@
     </div>
   </div>
 
-  <!-- Monthly Summary -->
   <div class="card">
     <div class="card-header"><div class="card-title"><i class="ti ti-calendar-stats"></i> Monthly Profit Summary</div></div>
     <div class="month-grid" id="month-grid"><div class="empty-msg">Loading summary...</div></div>
   </div>
 
-  <!-- Transactions Table -->
   <div class="card">
     <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 8px;">
       <div class="card-title"><i class="ti ti-list"></i> Sheet Records</div>
@@ -164,7 +160,6 @@
 <footer>Commercial Printing Log &mdash; Cloud Connected</footer>
 
 <script>
-// നിങ്ങളുടെ പുതിയ അപ്ഡേറ്റ് ചെയ്ത വെബ് ആപ്പ് ലിങ്ക് ഇവിടെ നൽകിയിട്ടുണ്ട്
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyjaG4n-o8PKWhVPYwszlfGHi-uX9UyBbE-DyEqrjxSf7TbgQ029R4mIFagCr_YMHGjQg/exec"; 
 
 const MONTHS = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -217,7 +212,6 @@ async function addEntry() {
   btn.disabled = true;
   statusTxt.textContent = "Sending to Google Sheet...";
 
-  // താൽക്കാലികമായി ഉടൻ തന്നെ ലിസ്റ്റിലേക്ക് ചേർക്കുന്നു
   entries.unshift(newLog);
   renderAll();
 
@@ -230,7 +224,7 @@ async function addEntry() {
         body: JSON.stringify(newLog)
       });
       statusTxt.textContent = "✅ Successfully Saved & Synced!";
-      setTimeout(loadFromSheet, 2000); // 2 സെക്കൻഡിന് ശേഷം ഡാറ്റ വീണ്ടും ഫ്രഷ് ചെയ്യും
+      setTimeout(loadFromSheet, 2000);
     } catch (err) {
       statusTxt.textContent = "⚠️ Network issue. Please refresh.";
     }

@@ -5,90 +5,200 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Commercial Printing & Trading Log</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #ffffff; --bg-secondary: #f5f5f3; --bg-tertiary: #eeede9; --text: #1a1a18;
-    --text-secondary: #6b6b68; --border: rgba(0,0,0,0.12); --border-md: rgba(0,0,0,0.22);
-    --green: #1D9E75; --green-dark: #0F6E56; --green-bg: #E1F5EE; --green-text: #085041;
-    --red-text: #993C1D; --red-bg: #FAECE7; --radius-md: 8px; --radius-lg: 12px;
+  .drive-status { font-size: 12px; color: var(--text-secondary); display:flex; align-items:center; gap:8px; }
+  .btn-drive {
+    background: var(--bg-secondary); color: var(--text); border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-md); padding: 6px 12px; font-size: 12px; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
   }
+  .btn-drive:hover { background: var(--bg-tertiary); }
+  .btn-drive.connected { background: var(--green-bg); color: var(--green-text); border-color: var(--green); }
+  .dot { width:7px; height:7px; border-radius:50%; background:#bbb; display:inline-block; }
+  .dot.ok { background: var(--green); }
+  .dot.busy { background: #d99a1f; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f5f5f3;
+    --bg-tertiary: #eeede9;
+    --text: #1a1a18;
+    --text-secondary: #6b6b68;
+    --border: rgba(0,0,0,0.12);
+    --border-md: rgba(0,0,0,0.22);
+    --green: #1D9E75;
+    --green-dark: #0F6E56;
+    --green-bg: #E1F5EE;
+    --green-text: #085041;
+    --red-text: #993C1D;
+    --red-bg: #FAECE7;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #1e1e1c; --bg-secondary: #2a2a28; --bg-tertiary: #333330; --text: #f0efea;
-      --text-secondary: #9a9994; --border: rgba(255,255,255,0.1); --border-md: rgba(255,255,255,0.2);
-      --green-bg: #0a2e22; --green-text: #5DCAA5; --red-text: #F0997B; --red-bg: #2e1408;
+      --bg: #1e1e1c;
+      --bg-secondary: #2a2a28;
+      --bg-tertiary: #333330;
+      --text: #f0efea;
+      --text-secondary: #9a9994;
+      --border: rgba(255,255,255,0.1);
+      --border-md: rgba(255,255,255,0.2);
+      --green-bg: #0a2e22;
+      --green-text: #5DCAA5;
+      --red-text: #F0997B;
+      --red-bg: #2e1408;
     }
   }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg-tertiary); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.5; }
-  .topbar { background: var(--bg); border-bottom: 0.5px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; flex-wrap: wrap; gap: 10px; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg-tertiary);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .topbar {
+    background: var(--bg);
+    border-bottom: 0.5px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
   .topbar-title { font-size: 16px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
   .topbar-title i { color: var(--green); font-size: 20px; }
   .topbar-sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
-  #record-count { font-size: 12px; color: var(--text-secondary); background: var(--bg-secondary); padding: 2px 8px; border-radius: 20px; }
-  .container { max-width: 1100px; margin: 0 auto; padding: 16px 10px; }
-  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
-  @media (min-width: 600px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
-  .stat { background: var(--bg); border-radius: var(--radius-md); padding: 12px; border: 0.5px solid var(--border); }
-  .stat-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-  .stat-value { font-size: 18px; font-weight: 600; color: var(--text); }
+  #record-count { font-size: 12px; color: var(--text-secondary); }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .stat { background: var(--bg); border-radius: var(--radius-md); padding: 14px 16px; border: 0.5px solid var(--border); }
+  .stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .stat-value { font-size: 22px; font-weight: 600; color: var(--text); }
   .stat-value.green { color: var(--green); }
-  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 16px; overflow: hidden; }
-  .card-header { padding: 12px 16px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 24px; overflow: hidden; }
+  .card-header { padding: 14px 18px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
   .card-title { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
-  .card-body { padding: 16px; }
-  .form-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  @media (min-width: 580px) { .form-grid { grid-template-columns: repeat(3, 1fr); } }
+  .card-title i { color: var(--green); }
+  .card-body { padding: 18px; }
+
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
   .field { display: flex; flex-direction: column; gap: 5px; }
   .field label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
-  .field input, .field select { font-size: 14px; padding: 10px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: var(--bg-secondary); color: var(--text); width: 100%; outline: none; }
-  .profit-preview { background: var(--green-bg); border-radius: var(--radius-md); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .field input, .field select {
+    font-size: 14px; padding: 8px 11px;
+    border-radius: var(--radius-md);
+    border: 0.5px solid var(--border-md);
+    background: var(--bg-secondary);
+    color: var(--text);
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--green); }
+  .delivery-hint { font-size: 11px; color: var(--red-text); margin-top: 2px; }
+
+  .profit-preview {
+    background: var(--green-bg);
+    border-radius: var(--radius-md);
+    padding: 11px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 14px;
+  }
   .profit-preview-label { font-size: 13px; color: var(--green-text); display: flex; align-items: center; gap: 6px; }
   .profit-preview-val { font-size: 20px; font-weight: 600; color: var(--green); }
-  .btn-add { background: var(--green); color: #fff; border: none; border-radius: var(--radius-md); padding: 12px 22px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 100%; }
-  .btn-add:disabled { background: var(--text-secondary); opacity: 0.6; }
-  .month-grid { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 12px; }
-  @media (min-width: 580px) { .month-grid { grid-template-columns: repeat(3, 1fr); } }
-  .month-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px; }
+
+  .btn-add {
+    background: var(--green); color: #fff; border: none;
+    border-radius: var(--radius-md); padding: 10px 22px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    margin-top: 14px; display: inline-flex; align-items: center; gap: 7px;
+    transition: background 0.15s;
+  }
+  .btn-add:hover { background: var(--green-dark); }
+
+  .month-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; padding: 16px; }
+  .month-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 14px 16px; }
   .month-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
   .month-name { font-size: 14px; font-weight: 600; color: var(--text); }
-  .month-meta { font-size: 11px; color: var(--text-secondary); }
-  .month-profit { font-size: 18px; font-weight: 700; color: var(--green); }
+  .month-meta { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .month-delivery-meta { font-size: 11px; color: var(--red-text); margin-top: 1px; }
+  .month-profit { font-size: 20px; font-weight: 700; color: var(--green); }
   .bar-bg { height: 4px; background: var(--border); border-radius: 99px; }
-  .bar-fill { height: 4px; background: var(--green); border-radius: 99px; }
-  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; width: 100%; margin-top: 4px; }
-  .filter-row select, .filter-row input { font-size: 12px; padding: 8px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: var(--bg-secondary); color: var(--text); flex: 1; min-width: 100px; }
-  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 750px; }
-  th { background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; padding: 10px 12px; text-align: left; border-bottom: 0.5px solid var(--border); text-transform: uppercase; letter-spacing: 0.4px; font-size: 11px; }
-  td { padding: 10px 12px; border-bottom: 0.5px solid var(--border); color: var(--text); }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
+  .bar-fill { height: 4px; background: var(--green); border-radius: 99px; transition: width 0.4s; }
+
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-row select, .filter-row input {
+    font-size: 13px; padding: 6px 10px;
+    border-radius: var(--radius-md);
+    border: 0.5px solid var(--border-md);
+    background: var(--bg-secondary);
+    color: var(--text);
+  }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 680px; }
+  th { background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; padding: 10px 13px; text-align: left; border-bottom: 0.5px solid var(--border); white-space: nowrap; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+  td { padding: 10px 13px; border-bottom: 0.5px solid var(--border); color: var(--text); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--bg-secondary); }
+
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; }
   .badge-invoice { background: #E6F1FB; color: #0C447C; }
   .badge-card    { background: #EEEDFE; color: #3C3489; }
   .badge-job     { background: #FAEEDA; color: #633806; }
   .badge-flyer   { background: #EAF3DE; color: #27500A; }
   .badge-sticker { background: #FAECE7; color: #712B13; }
   .badge-other   { background: var(--bg-secondary); color: var(--text-secondary); }
+
   .profit-cell { font-weight: 600; color: var(--green); }
-  .delivery-cell { color: var(--red-text); }
-  .btn-del { background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px 7px; border-radius: 6px; font-size: 15px; }
+  .delivery-cell { color: var(--red-text); font-size: 12px; }
+
+  .btn-del { background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px 7px; border-radius: 6px; font-size: 15px; line-height: 1; }
   .btn-del:hover { color: #A32D2D; background: var(--red-bg); }
-  .empty-msg { text-align: center; padding: 2rem; color: var(--text-secondary); font-size: 13px; width: 100%; }
-  .sync-indicator { font-size: 11px; color: var(--text-secondary); display: block; text-align: center; margin-top: 6px; font-style: italic; }
-  footer { text-align: center; font-size: 11px; color: var(--text-secondary); padding: 20px; }
+
+  .empty-msg { text-align: center; padding: 2.5rem; color: var(--text-secondary); font-size: 14px; }
+
+  footer { text-align: center; font-size: 12px; color: var(--text-secondary); padding: 24px; }
+
+  @media (max-width: 600px) {
+    .topbar { padding: 12px 14px; }
+    .container { padding: 14px 10px; }
+    .card-body { padding: 14px; }
+  }
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <div>
-    <div class="topbar-title"><i class="ti ti-printer"></i> Commercial Printing Log</div>
-    <div class="topbar-sub">Cloud Synchronized Tracker</div>
+    <div class="topbar-title"><i class="ti ti-printer"></i> Commercial Printing & Trading Log</div>
+    <div class="topbar-sub">Personal sales & profit tracker</div>
   </div>
-  <div id="record-count">Loading...</div>
+  <div class="drive-status">
+    <button class="btn-drive" id="drive-btn" onclick="driveSignIn()">
+      <span class="dot" id="drive-dot"></span> <span id="drive-label">Connect Google Drive</span>
+    </button>
+    <span id="record-count">0 records</span>
+  </div>
 </div>
 
 <div class="container">
+
+  <!-- Stats -->
   <div class="stats-grid">
     <div class="stat"><div class="stat-label">Total Revenue</div><div class="stat-value" id="stat-revenue">0.00</div></div>
     <div class="stat"><div class="stat-label">Total Cost</div><div class="stat-value" id="stat-cost">0.00</div></div>
@@ -96,8 +206,11 @@
     <div class="stat"><div class="stat-label">Cumulative Profit</div><div class="stat-value green" id="stat-profit">0.00</div></div>
   </div>
 
+  <!-- Add Entry -->
   <div class="card">
-    <div class="card-header"><div class="card-title"><i class="ti ti-circle-plus"></i> New Entry</div></div>
+    <div class="card-header">
+      <div class="card-title"><i class="ti ti-circle-plus"></i> New Entry</div>
+    </div>
     <div class="card-body">
       <div class="form-grid">
         <div class="field"><label>Date</label><input type="date" id="f-date"></div>
@@ -115,71 +228,237 @@
         <div class="field"><label>Qty</label><input type="number" id="f-qty" min="1" placeholder="e.g. 1000"></div>
         <div class="field"><label>Cost Amount</label><input type="number" id="f-cost" step="0.01" placeholder="0.00"></div>
         <div class="field"><label>Selling Amount</label><input type="number" id="f-sell" step="0.01" placeholder="0.00"></div>
-        <div class="field"><label>Delivery Charge</label><input type="number" id="f-delivery" step="0.01" placeholder="0.00"></div>
+        <div class="field">
+          <label>Delivery Charge</label>
+          <input type="number" id="f-delivery" step="0.01" placeholder="0.00">
+          <span class="delivery-hint">— deducted from net profit</span>
+        </div>
       </div>
       <div class="profit-preview">
-        <span class="profit-preview-label"><i class="ti ti-trending-up"></i> Est. Net Profit</span>
+        <span class="profit-preview-label"><i class="ti ti-trending-up"></i> Net Profit &nbsp;<span style="font-weight:400;font-size:11px">(Selling − Cost − Delivery)</span></span>
         <span class="profit-preview-val" id="profit-preview">0.00</span>
       </div>
-      <button id="btn-submit" class="btn-add" onclick="addEntry()"><i class="ti ti-plus"></i> Add & Sync Entry</button>
-      <span id="sync-status" class="sync-indicator">Fetching latest data from Sheet...</span>
+      <button class="btn-add" onclick="addEntry()"><i class="ti ti-plus"></i> Add Entry</button>
     </div>
   </div>
 
+  <!-- Monthly Summary -->
   <div class="card">
-    <div class="card-header"><div class="card-title"><i class="ti ti-calendar-stats"></i> Monthly Profit Summary</div></div>
-    <div class="month-grid" id="month-grid"><div class="empty-msg">Loading summary...</div></div>
+    <div class="card-header">
+      <div class="card-title"><i class="ti ti-calendar-stats"></i> Monthly Profit Summary</div>
+    </div>
+    <div class="month-grid" id="month-grid">
+      <div class="empty-msg">No data yet. Add your first entry above.</div>
+    </div>
   </div>
 
+  <!-- Transactions -->
   <div class="card">
-    <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 8px;">
-      <div class="card-title"><i class="ti ti-list"></i> Sheet Records</div>
+    <div class="card-header">
+      <div class="card-title"><i class="ti ti-list"></i> All Transactions</div>
       <div class="filter-row">
-        <select id="filter-month" onchange="renderAll()">
+        <select id="filter-month" onchange="renderTable()">
           <option value="">All Months</option>
-          <option value="1">January</option><option value="2">February</option><option value="3">March</option>
-          <option value="4">April</option><option value="5">May</option><option value="6">June</option>
-          <option value="7">July</option><option value="8">August</option><option value="9">September</option>
-          <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+          <option value="1">January</option><option value="2">February</option>
+          <option value="3">March</option><option value="4">April</option>
+          <option value="5">May</option><option value="6">June</option>
+          <option value="7">July</option><option value="8">August</option>
+          <option value="9">September</option><option value="10">October</option>
+          <option value="11">November</option><option value="12">December</option>
         </select>
-        <select id="filter-type" onchange="renderAll()">
+        <select id="filter-type" onchange="renderTable()">
           <option value="">All Types</option>
-          <option>TAX INVOICE</option><option>JOB ORDER</option><option>BUSINESS CARD</option>
-          <option>FLYER</option><option>STICKER</option><option>OTHER</option>
+          <option>TAX INVOICE</option><option>JOB ORDER</option>
+          <option>BUSINESS CARD</option><option>FLYER</option><option>STICKER</option><option>OTHER</option>
         </select>
-        <input type="text" id="filter-search" placeholder="Search company..." oninput="renderAll()">
+        <input type="text" id="filter-search" placeholder="Search company..." oninput="renderTable()" style="width:160px">
       </div>
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Date</th><th>Company</th><th>Item</th><th>Qty</th><th>Cost</th><th>Selling</th><th>Delivery</th><th>Profit</th><th></th></tr></thead>
-        <tbody id="tbody"><tr><td colspan="9" class="empty-msg">Loading data...</td></tr></tbody>
+        <thead>
+          <tr>
+            <th>Date</th><th>Company</th><th>Item</th>
+            <th>Qty</th><th>Cost</th><th>Selling</th><th>Delivery</th><th>Net Profit</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
       </table>
     </div>
   </div>
+
 </div>
 
-<footer>Commercial Printing Log &mdash; Cloud Connected</footer>
+<footer>Commercial Printing & Trading Log &mdash; Personal Use</footer>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyjaG4n-o8PKWhVPYwszlfGHi-uX9UyBbE-DyEqrjxSf7TbgQ029R4mIFagCr_YMHGjQg/exec"; 
-
 const MONTHS = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 const ITEMS = {'TAX INVOICE':'invoice','JOB ORDER':'job','BUSINESS CARD':'card','FLYER':'flyer','STICKER':'sticker','OTHER':'other'};
+const STORE_KEY = 'cptl_entries';
 
 let entries = [];
+let nextId = 1;
 
-async function loadFromSheet() {
-  const statusTxt = document.getElementById('sync-status');
-  if(!WEB_APP_URL) return;
-  try {
-    let response = await fetch(WEB_APP_URL);
-    entries = await response.json();
-   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzDG_s3cYL4xHQVA9s7Bd7_RFcFJAX5ly55qn6bbXq8EXioir3sgSI3YDpujQaan7jT/exec";
-    renderAll();
-  } catch(e) {
-    statusTxt.textContent = "⚠️ Could not sync live data. Showing offline data.";
+/* ===================== GOOGLE DRIVE SYNC =====================
+   1. Go to https://console.cloud.google.com/ -> create a project
+   2. Enable "Google Drive API" (APIs & Services -> Library)
+   3. Go to APIs & Services -> Credentials -> Create Credentials -> OAuth Client ID
+      - Application type: Web application
+      - Authorized JavaScript origins: add your GitHub Pages URL
+        e.g. https://yourusername.github.io
+   4. Paste the Client ID below in CLIENT_ID.
+   5. OAuth consent screen: add yourself as a Test User (if app is in "Testing" mode).
+   ============================================================== */
+const CLIENT_ID = 'PASTE_YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_FILENAME = 'printing_trading_log_data.json';
+
+let tokenClient = null;
+let accessToken = null;
+let driveFileId = null;
+let driveReady = false;
+
+function setDriveUI(state) {
+  const dot = document.getElementById('drive-dot');
+  const label = document.getElementById('drive-label');
+  const btn = document.getElementById('drive-btn');
+  if (state === 'connected') {
+    dot.className = 'dot ok'; label.textContent = 'Synced to Drive'; btn.classList.add('connected');
+  } else if (state === 'busy') {
+    dot.className = 'dot busy'; label.textContent = 'Syncing...';
+  } else {
+    dot.className = 'dot'; label.textContent = 'Connect Google Drive'; btn.classList.remove('connected');
   }
+}
+
+function initGoogle() {
+  if (!window.google || CLIENT_ID.indexOf('PASTE_YOUR') === 0) return;
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: DRIVE_SCOPE,
+    callback: async (resp) => {
+      if (resp.error) { console.error(resp); return; }
+      accessToken = resp.access_token;
+      setDriveUI('busy');
+      await driveLoadOrCreate();
+      setDriveUI('connected');
+    }
+  });
+}
+
+function driveSignIn() {
+  if (CLIENT_ID.indexOf('PASTE_YOUR') === 0) {
+    alert('Google Drive ഉപയോഗിക്കാൻ ആദ്യം CLIENT_ID code-ൽ paste ചെയ്യണം. Comment-ൽ steps കൊടുത്തിട്ടുണ്ട്.');
+    return;
+  }
+  if (!tokenClient) initGoogle();
+  if (!tokenClient) { alert('Google API load ആയിട്ടില്ല, ഒരു സെക്കൻഡ് കഴിഞ്ഞ് try ചെയ്യൂ.'); return; }
+  tokenClient.requestAccessToken({ prompt: accessToken ? '' : 'consent' });
+}
+
+async function driveFindFile() {
+  const q = encodeURIComponent(`name='${DRIVE_FILENAME}' and trashed=false`);
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive&fields=files(id,name)`, {
+    headers: { Authorization: 'Bearer ' + accessToken }
+  });
+  const data = await res.json();
+  return (data.files && data.files[0]) ? data.files[0].id : null;
+}
+
+async function driveLoadOrCreate() {
+  driveFileId = await driveFindFile();
+  if (driveFileId) {
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`, {
+      headers: { Authorization: 'Bearer ' + accessToken }
+    });
+    const data = await res.json();
+    entries = data.entries || [];
+    nextId = data.nextId || 1;
+  } else {
+    // create new file with current (local) data
+    await driveSaveFile();
+  }
+  driveReady = true;
+  save(); // mirror into localStorage as cache
+  renderAll();
+}
+
+async function driveSaveFile() {
+  const metadata = { name: DRIVE_FILENAME, mimeType: 'application/json' };
+  const boundary = '-------cptl_boundary';
+  const body =
+    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
+    `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify({entries, nextId})}\r\n` +
+    `--${boundary}--`;
+
+  if (driveFileId) {
+    const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=multipart`, {
+      method: 'PATCH',
+      headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': `multipart/related; boundary=${boundary}` },
+      body
+    });
+    return res.json();
+  } else {
+    const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': `multipart/related; boundary=${boundary}` },
+      body
+    });
+    const data = await res.json();
+    driveFileId = data.id;
+    return data;
+  }
+}
+
+let driveSaveTimer = null;
+function driveAutoSave() {
+  if (!accessToken) return; // not signed in -> localStorage only
+  setDriveUI('busy');
+  clearTimeout(driveSaveTimer);
+  driveSaveTimer = setTimeout(async () => {
+    try { await driveSaveFile(); setDriveUI('connected'); }
+    catch(e) { console.error(e); setDriveUI('connected'); }
+  }, 600); // debounce so rapid edits don't spam the API
+}
+
+window.addEventListener('load', initGoogle);
+/* =============================================================== */
+
+function load() {
+  try {
+    const saved = localStorage.getItem(STORE_KEY);
+    if (saved) {
+      const data = JSON.parse(saved);
+      entries = data.entries || [];
+      nextId = data.nextId || (entries.length ? Math.max(...entries.map(e=>e.id))+1 : 1);
+    } else {
+      entries = [
+        {id:1,date:'2025-01-03',company:'BLUE MOUNTAIN TAILORING LLC',item:'JOB ORDER',qty:25,cost:183.75,sell:250.00,delivery:0,profit:66.25},
+        {id:2,date:'2025-01-04',company:'FADANO FURNITURE',item:'TAX INVOICE',qty:20,cost:130.00,sell:210.00,delivery:0,profit:80.00},
+        {id:3,date:'2025-01-04',company:'FADANO FURNITURE',item:'JOB ORDER',qty:10,cost:90.00,sell:180.00,delivery:0,profit:90.00},
+        {id:4,date:'2025-01-04',company:'FADANO FURNITURE',item:'BUSINESS CARD',qty:1000,cost:26.25,sell:80.00,delivery:0,profit:53.75},
+        {id:5,date:'2025-01-07',company:'BAIT AL AMANAH READYMADE',item:'TAX INVOICE',qty:50,cost:157.50,sell:250.00,delivery:0,profit:92.50},
+        {id:6,date:'2025-01-12',company:'ABID COPY',item:'BUSINESS CARD',qty:1000,cost:26.25,sell:80.00,delivery:0,profit:53.75},
+        {id:7,date:'2025-01-12',company:'BLUE MOUNTAIN TAILORING LLC',item:'BUSINESS CARD',qty:1000,cost:124.00,sell:260.00,delivery:0,profit:136.00},
+        {id:8,date:'2025-01-24',company:'ZAHRAT AL MARJAN TR',item:'BUSINESS CARD',qty:1000,cost:26.25,sell:80.00,delivery:0,profit:53.75},
+        {id:9,date:'2025-02-01',company:'NOOR SHALIMAR READYMADE GAR. & ABBAYAT',item:'TAX INVOICE',qty:50,cost:157.50,sell:250.00,delivery:0,profit:92.50},
+        {id:10,date:'2025-02-06',company:'SALEM BELOBAIDA TRADING L.L.C -REPRINT',item:'TAX INVOICE',qty:20,cost:73.50,sell:160.00,delivery:0,profit:86.50},
+        {id:11,date:'2025-02-09',company:'BURJ AL SAJJAH',item:'STICKER',qty:4,cost:55.00,sell:160.00,delivery:0,profit:105.00},
+        {id:12,date:'2025-02-10',company:'RUKN AL MABROOK',item:'FLYER',qty:2000,cost:223.00,sell:500.00,delivery:0,profit:277.00},
+        {id:13,date:'2025-02-10',company:'SIRAJUL HUDA MADRASA',item:'FLYER',qty:1000,cost:141.00,sell:300.00,delivery:0,profit:159.00},
+        {id:14,date:'2025-02-13',company:'AL MUNTADA ABAYA',item:'BUSINESS CARD',qty:1000,cost:26.25,sell:80.00,delivery:0,profit:53.75},
+        {id:15,date:'2025-02-13',company:'ABAQ AL RAIHAN',item:'BUSINESS CARD',qty:1000,cost:26.25,sell:75.00,delivery:0,profit:48.75},
+        {id:16,date:'2025-02-13',company:'AL KAYED READYMADE',item:'TAX INVOICE',qty:10,cost:73.50,sell:110.00,delivery:0,profit:36.50},
+      ];
+      nextId = 17;
+      save();
+    }
+  } catch(e) { entries = []; nextId = 1; }
+}
+
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify({entries, nextId})); } catch(e) {}
+  driveAutoSave();
 }
 
 function getMonth(date) { return parseInt((date||'').split('-')[1]||0); }
@@ -195,124 +474,103 @@ function calcProfit() {
   document.getElementById(id).addEventListener('input', calcProfit);
 });
 
-async function addEntry() {
+function addEntry() {
   const date = document.getElementById('f-date').value;
-  const company = document.getElementById('f-company').value.trim().toUpperCase();
+  const company = document.getElementById('f-company').value.trim();
   const item = document.getElementById('f-item').value;
   const qty = parseFloat(document.getElementById('f-qty').value)||0;
   const cost = parseFloat(document.getElementById('f-cost').value)||0;
   const sell = parseFloat(document.getElementById('f-sell').value)||0;
   const delivery = parseFloat(document.getElementById('f-delivery').value)||0;
-  const profit = sell - cost - delivery;
-
   if (!date || !company || !sell) { alert('Date, Company, and Selling Amount are required.'); return; }
-
-  const newLog = { id: Date.now(), date, company, item, qty, cost, sell, delivery, profit };
-
-  const btn = document.getElementById('btn-submit');
-  const statusTxt = document.getElementById('sync-status');
-  btn.disabled = true;
-  statusTxt.textContent = "Sending to Google Sheet...";
-
-  entries.unshift(newLog);
-  renderAll();
-
-  if (WEB_APP_URL) {
-    try {
-      await fetch(WEB_APP_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newLog)
-      });
-      statusTxt.textContent = "✅ Successfully Saved & Synced!";
-      setTimeout(loadFromSheet, 2000);
-    } catch (err) {
-      statusTxt.textContent = "⚠️ Network issue. Please refresh.";
-    }
-  }
-
-  ['f-company','f-qty','f-cost','f-sell','f-delivery'].forEach(id => { document.getElementById(id).value=''; });
+  entries.push({id:nextId++, date, company:company.toUpperCase(), item, qty, cost, sell, delivery, profit: sell-cost-delivery});
+  save();
+  ['f-date','f-company','f-qty','f-cost','f-sell','f-delivery'].forEach(id => { document.getElementById(id).value=''; });
   document.getElementById('profit-preview').textContent = '0.00';
-  btn.disabled = false;
+  renderAll();
 }
 
-async function deleteLocalRow(timestampId) {
-  if(!confirm("Are you sure you want to delete this entry from view? (Note: Delete from Google Sheet manually if required)")) return;
-  entries = entries.filter(e => e.id !== timestampId);
+function deleteEntry(id) {
+  if (!confirm('Delete this entry?')) return;
+  entries = entries.filter(e => e.id !== id);
+  save();
   renderAll();
 }
 
 function getBadge(item) {
-  return `<span class="badge badge-${ITEMS[item]||'other'}">${item}</span>`;
+  const cls = ITEMS[item]||'other';
+  return `<span class="badge badge-${cls}">${item}</span>`;
 }
 
-function renderAll() {
+function renderMonthly() {
+  const map = {};
+  entries.forEach(e => {
+    const mm = getMonth(e.date);
+    if (!mm) return;
+    if (!map[mm]) map[mm] = {profit:0, count:0, delivery:0};
+    map[mm].profit += e.profit;
+    map[mm].delivery += e.delivery;
+    map[mm].count++;
+  });
+  const keys = Object.keys(map).map(Number).sort((a,b)=>a-b);
+  const el = document.getElementById('month-grid');
+  if (!keys.length) { el.innerHTML='<div class="empty-msg">No data yet.</div>'; return; }
+  const maxP = Math.max(...keys.map(k=>map[k].profit), 1);
+  el.innerHTML = keys.map(mm=>`
+    <div class="month-card">
+      <div class="month-top">
+        <div>
+          <div class="month-name">${MONTHS[mm]}</div>
+          <div class="month-meta">${map[mm].count} transactions</div>
+          ${map[mm].delivery>0?`<div class="month-delivery-meta"><i class="ti ti-truck" style="font-size:11px;vertical-align:-1px"></i> Delivery: ${map[mm].delivery.toFixed(2)}</div>`:''}
+        </div>
+        <div class="month-profit">${map[mm].profit.toFixed(2)}</div>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(map[mm].profit/maxP*100)}%"></div></div>
+    </div>
+  `).join('');
+}
+
+function renderTable() {
   const filterMM = document.getElementById('filter-month').value;
   const filterType = document.getElementById('filter-type').value;
   const search = document.getElementById('filter-search').value.toLowerCase();
-
   const filtered = entries.filter(e => {
     if (filterMM && String(getMonth(e.date)) !== filterMM) return false;
     if (filterType && e.item !== filterType) return false;
     if (search && !e.company.toLowerCase().includes(search)) return false;
     return true;
   });
-
-  const tot = k => filtered.reduce((s,e)=>s+parseFloat(e[k]||0), 0);
-  document.getElementById('stat-revenue').textContent = tot('sell').toFixed(2);
-  document.getElementById('stat-cost').textContent = tot('cost').toFixed(2);
-  document.getElementById('stat-delivery').textContent = tot('delivery').toFixed(2);
-  document.getElementById('stat-profit').textContent = tot('profit').toFixed(2);
-  document.getElementById('record-count').textContent = filtered.length + ' records';
-
-  const monthlyMap = {};
-  filtered.forEach(e => {
-    const mm = getMonth(e.date); if (!mm) return;
-    if (!monthlyMap[mm]) monthlyMap[mm] = {profit:0, count:0};
-    monthlyMap[mm].profit += parseFloat(e.profit||0);
-    monthlyMap[mm].count++;
-  });
-  
-  const mGrid = document.getElementById('month-grid');
-  const monthKeys = Object.keys(monthlyMap).map(Number).sort((a,b)=>a-b);
-  if (!monthKeys.length) {
-    mGrid.innerHTML = '<div class="empty-msg">No summary.</div>';
-  } else {
-    const maxP = Math.max(...monthKeys.map(k=>monthlyMap[k].profit), 1);
-    mGrid.innerHTML = monthKeys.map(mm=>`
-      <div class="month-card">
-        <div class="month-top">
-          <div><div class="month-name">${MONTHS[mm]}</div><div class="month-meta">${monthlyMap[mm].count} items</div></div>
-          <div class="month-profit">${monthlyMap[mm].profit.toFixed(2)}</div>
-        </div>
-        <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(monthlyMap[mm].profit/maxP*100)}%"></div></div>
-      </div>
-    `).join('');
-  }
-
   const tbody = document.getElementById('tbody');
-  if(!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="9" class="empty-msg">No records found.</td></tr>';
-    return;
-  }
-  tbody.innerHTML = filtered.map(e => `
+  if (!filtered.length) { tbody.innerHTML='<tr><td colspan="9" class="empty-msg">No records found.</td></tr>'; return; }
+  tbody.innerHTML = filtered.map(e=>`
     <tr>
       <td>${e.date}</td>
-      <td style="font-weight:600;">${e.company}</td>
+      <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.company}</td>
       <td>${getBadge(e.item)}</td>
-      <td>${parseInt(e.qty||0).toLocaleString()}</td>
-      <td>${parseFloat(e.cost||0).toFixed(2)}</td>
-      <td>${parseFloat(e.sell||0).toFixed(2)}</td>
-      <td class="delivery-cell">${parseFloat(e.delivery||0) > 0 ? '− '+parseFloat(e.delivery).toFixed(2) : '—'}</td>
-      <td class="profit-cell">${parseFloat(e.profit||0).toFixed(2)}</td>
-      <td><button class="btn-del" onclick="deleteLocalRow(${e.id})" title="Delete"><i class="ti ti-trash"></i></button></td>
+      <td>${e.qty.toLocaleString()}</td>
+      <td>${e.cost.toFixed(2)}</td>
+      <td>${e.sell.toFixed(2)}</td>
+      <td class="delivery-cell">${e.delivery>0?'− '+e.delivery.toFixed(2):'—'}</td>
+      <td class="profit-cell">${e.profit.toFixed(2)}</td>
+      <td><button class="btn-del" onclick="deleteEntry(${e.id})" title="Delete"><i class="ti ti-trash"></i></button></td>
     </tr>
   `).join('');
 }
 
-document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
-loadFromSheet();
+function updateStats() {
+  const tot = k => entries.reduce((s,e)=>s+e[k], 0);
+  document.getElementById('stat-revenue').textContent = tot('sell').toFixed(2);
+  document.getElementById('stat-cost').textContent = tot('cost').toFixed(2);
+  document.getElementById('stat-delivery').textContent = tot('delivery').toFixed(2);
+  document.getElementById('stat-profit').textContent = tot('profit').toFixed(2);
+  document.getElementById('record-count').textContent = entries.length + ' records';
+}
+
+function renderAll() { renderMonthly(); renderTable(); updateStats(); }
+
+load();
+renderAll();
 </script>
 </body>
 </html>

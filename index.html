@@ -175,9 +175,29 @@
   footer { text-align: center; font-size: 12px; color: var(--text-secondary); padding: 24px; }
 
   @media (max-width: 600px) {
-    .topbar { padding: 12px 14px; }
-    .container { padding: 14px 10px; }
-    .card-body { padding: 14px; }
+    body { font-size: 14px; }
+    .topbar { padding: 10px 12px; flex-direction: column; align-items: flex-start; }
+    .topbar-title { font-size: 14px; }
+    .container { padding: 12px 8px; }
+    .card-body { padding: 12px; }
+    .card-header { padding: 12px 14px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .stat { padding: 11px 12px; }
+    .stat-value { font-size: 18px; }
+    .form-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-add { width: 100%; justify-content: center; }
+    .month-grid { grid-template-columns: 1fr; padding: 12px; }
+    .filter-row { flex-direction: column; width: 100%; }
+    .filter-row select, .filter-row input { width: 100%; }
+    .drive-status { width: 100%; justify-content: space-between; }
+    .btn-drive { font-size: 11px; padding: 6px 10px; }
+    table { font-size: 12px; min-width: 560px; }
+    th, td { padding: 8px 9px; }
+  }
+
+  @media (max-width: 400px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -257,6 +277,9 @@
     <div class="card-header">
       <div class="card-title"><i class="ti ti-list"></i> All Transactions</div>
       <div class="filter-row">
+        <select id="filter-year" onchange="renderTable()">
+          <option value="">All Years</option>
+        </select>
         <select id="filter-month" onchange="renderTable()">
           <option value="">All Months</option>
           <option value="1">January</option><option value="2">February</option>
@@ -462,6 +485,7 @@ function save() {
 }
 
 function getMonth(date) { return parseInt((date||'').split('-')[1]||0); }
+function getYear(date) { return parseInt((date||'').split('-')[0]||0); }
 
 function calcProfit() {
   const sell = parseFloat(document.getElementById('f-sell').value)||0;
@@ -506,36 +530,50 @@ function renderMonthly() {
   const map = {};
   entries.forEach(e => {
     const mm = getMonth(e.date);
-    if (!mm) return;
-    if (!map[mm]) map[mm] = {profit:0, count:0, delivery:0};
-    map[mm].profit += e.profit;
-    map[mm].delivery += e.delivery;
-    map[mm].count++;
+    const yy = getYear(e.date);
+    if (!mm || !yy) return;
+    const key = yy + '-' + mm;
+    if (!map[key]) map[key] = {year:yy, month:mm, profit:0, count:0, delivery:0};
+    map[key].profit += e.profit;
+    map[key].delivery += e.delivery;
+    map[key].count++;
   });
-  const keys = Object.keys(map).map(Number).sort((a,b)=>a-b);
+  const keys = Object.keys(map).sort((a,b)=> (map[a].year-map[b].year) || (map[a].month-map[b].month));
   const el = document.getElementById('month-grid');
   if (!keys.length) { el.innerHTML='<div class="empty-msg">No data yet.</div>'; return; }
   const maxP = Math.max(...keys.map(k=>map[k].profit), 1);
-  el.innerHTML = keys.map(mm=>`
+  el.innerHTML = keys.map(k=>{
+    const m = map[k];
+    return `
     <div class="month-card">
       <div class="month-top">
         <div>
-          <div class="month-name">${MONTHS[mm]}</div>
-          <div class="month-meta">${map[mm].count} transactions</div>
-          ${map[mm].delivery>0?`<div class="month-delivery-meta"><i class="ti ti-truck" style="font-size:11px;vertical-align:-1px"></i> Delivery: ${map[mm].delivery.toFixed(2)}</div>`:''}
+          <div class="month-name">${MONTHS[m.month]} ${m.year}</div>
+          <div class="month-meta">${m.count} transactions</div>
+          ${m.delivery>0?`<div class="month-delivery-meta"><i class="ti ti-truck" style="font-size:11px;vertical-align:-1px"></i> Delivery: ${m.delivery.toFixed(2)}</div>`:''}
         </div>
-        <div class="month-profit">${map[mm].profit.toFixed(2)}</div>
+        <div class="month-profit">${m.profit.toFixed(2)}</div>
       </div>
-      <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(map[mm].profit/maxP*100)}%"></div></div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(m.profit/maxP*100)}%"></div></div>
     </div>
-  `).join('');
+  `;}).join('');
+}
+
+function populateYearFilter() {
+  const sel = document.getElementById('filter-year');
+  const current = sel.value;
+  const years = Array.from(new Set(entries.map(e=>getYear(e.date)).filter(Boolean))).sort((a,b)=>b-a);
+  sel.innerHTML = '<option value="">All Years</option>' + years.map(y=>`<option value="${y}">${y}</option>`).join('');
+  if (years.includes(Number(current))) sel.value = current;
 }
 
 function renderTable() {
+  const filterYY = document.getElementById('filter-year').value;
   const filterMM = document.getElementById('filter-month').value;
   const filterType = document.getElementById('filter-type').value;
   const search = document.getElementById('filter-search').value.toLowerCase();
   const filtered = entries.filter(e => {
+    if (filterYY && String(getYear(e.date)) !== filterYY) return false;
     if (filterMM && String(getMonth(e.date)) !== filterMM) return false;
     if (filterType && e.item !== filterType) return false;
     if (search && !e.company.toLowerCase().includes(search)) return false;
@@ -567,7 +605,7 @@ function updateStats() {
   document.getElementById('record-count').textContent = entries.length + ' records';
 }
 
-function renderAll() { renderMonthly(); renderTable(); updateStats(); }
+function renderAll() { populateYearFilter(); renderMonthly(); renderTable(); updateStats(); }
 
 load();
 renderAll();

@@ -259,7 +259,7 @@ function renderAll() {
     return true;
   });
 
-  const tot = k => filtered.reduce((s,e)=>s+e[k], 0);
+  const tot = k => filtered.reduce((s,e)=>s+parseFloat(e[k]||0), 0);
   document.getElementById('stat-revenue').textContent = tot('sell').toFixed(2);
   document.getElementById('stat-cost').textContent = tot('cost').toFixed(2);
   document.getElementById('stat-delivery').textContent = tot('delivery').toFixed(2);
@@ -270,7 +270,7 @@ function renderAll() {
   filtered.forEach(e => {
     const mm = getMonth(e.date); if (!mm) return;
     if (!monthlyMap[mm]) monthlyMap[mm] = {profit:0, count:0};
-    monthlyMap[mm].profit += e.profit;
+    monthlyMap[mm].profit += parseFloat(e.profit||0);
     monthlyMap[mm].count++;
   });
   
@@ -301,11 +301,11 @@ function renderAll() {
       <td>${e.date}</td>
       <td style="font-weight:600;">${e.company}</td>
       <td>${getBadge(e.item)}</td>
-      <td>${parseInt(e.qty).toLocaleString()}</td>
-      <td>${parseFloat(e.cost).toFixed(2)}</td>
-      <td>${parseFloat(e.sell).toFixed(2)}</td>
-      <td class="delivery-cell">${e.delivery > 0 ? '− '+parseFloat(e.delivery).toFixed(2) : '—'}</td>
-      <td class="profit-cell">${parseFloat(e.profit).toFixed(2)}</td>
+      <td>${parseInt(e.qty||0).toLocaleString()}</td>
+      <td>${parseFloat(e.cost||0).toFixed(2)}</td>
+      <td>${parseFloat(e.sell||0).toFixed(2)}</td>
+      <td class="delivery-cell">${parseFloat(e.delivery||0) > 0 ? '− '+parseFloat(e.delivery).toFixed(2) : '—'}</td>
+      <td class="profit-cell">${parseFloat(e.profit||0).toFixed(2)}</td>
       <td><button class="btn-del" onclick="deleteLocalRow(${e.id})" title="Delete"><i class="ti ti-trash"></i></button></td>
     </tr>
   `).join('');

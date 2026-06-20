@@ -175,7 +175,7 @@ async function loadFromSheet() {
   try {
     let response = await fetch(WEB_APP_URL);
     entries = await response.json();
-    statusTxt.textContent = "✅ Cloud Sync Active";
+   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzDG_s3cYL4xHQVA9s7Bd7_RFcFJAX5ly55qn6bbXq8EXioir3sgSI3YDpujQaan7jT/exec";
     renderAll();
   } catch(e) {
     statusTxt.textContent = "⚠️ Could not sync live data. Showing offline data.";

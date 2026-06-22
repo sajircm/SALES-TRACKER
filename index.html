@@ -478,6 +478,21 @@ function showApp() {
   document.getElementById('app-content').classList.add('visible');
 }
 
+const TOKEN_CACHE_KEY = 'cptl_drive_token';
+
+function cacheToken(token, expiresInSec) {
+  const expiry = Date.now() + (expiresInSec * 1000) - 60000;
+  localStorage.setItem(TOKEN_CACHE_KEY, JSON.stringify({ token, expiry }));
+}
+
+function getCachedToken() {
+  try {
+    const data = JSON.parse(localStorage.getItem(TOKEN_CACHE_KEY) || 'null');
+    if (data && data.expiry > Date.now()) return data.token;
+  } catch(e) {}
+  return null;
+}
+
 function initGoogle() {
   if (!window.google || CLIENT_ID.indexOf('PASTE_YOUR') === 0) return;
   tokenClient = google.accounts.oauth2.initTokenClient({
@@ -486,12 +501,21 @@ function initGoogle() {
     callback: async (resp) => {
       if (resp.error) { console.error(resp); return; }
       accessToken = resp.access_token;
+      cacheToken(accessToken, resp.expires_in || 3500);
       setDriveUI('busy');
       await driveLoadOrCreate();
       setDriveUI('connected');
       showApp();
     }
   });
+
+  const cached = getCachedToken();
+  if (cached) {
+    accessToken = cached;
+    setDriveUI('busy');
+    driveLoadOrCreate().then(() => { setDriveUI('connected'); showApp(); })
+      .catch(() => { localStorage.removeItem(TOKEN_CACHE_KEY); accessToken = null; });
+  }
 }
 
 function driveSignIn() {
@@ -509,6 +533,7 @@ async function driveFindFile() {
   const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive&fields=files(id,name)`, {
     headers: { Authorization: 'Bearer ' + accessToken }
   });
+  if (res.status === 401) { localStorage.removeItem(TOKEN_CACHE_KEY); throw new Error('token expired'); }
   const data = await res.json();
   return (data.files && data.files[0]) ? data.files[0].id : null;
 }

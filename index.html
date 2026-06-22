@@ -1,331 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Commercial Printing & Trading Log</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<style>
-  .drive-status { font-size: 12px; color: var(--text-secondary); display:flex; align-items:center; gap:8px; }
-  .btn-drive {
-    background: var(--bg-secondary); color: var(--text); border: 0.5px solid var(--border-md);
-    border-radius: var(--radius-md); padding: 6px 12px; font-size: 12px; font-weight: 600;
-    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-  }
-  .btn-drive:hover { background: var(--bg-tertiary); }
-  .dot { width:7px; height:7px; border-radius:50%; background:#bbb; display:inline-block; }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #ffffff;
-    --bg-secondary: #f5f5f3;
-    --bg-tertiary: #eeede9;
-    --text: #1a1a18;
-    --text-secondary: #6b6b68;
-    --border: rgba(0,0,0,0.12);
-    --border-md: rgba(0,0,0,0.22);
-    --green: #1D9E75;
-    --green-dark: #0F6E56;
-    --green-bg: #E1F5EE;
-    --green-text: #085041;
-    --red-text: #993C1D;
-    --red-bg: #FAECE7;
-    --radius-md: 8px;
-    --radius-lg: 12px;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1e1e1c;
-      --bg-secondary: #2a2a28;
-      --bg-tertiary: #333330;
-      --text: #f0efea;
-      --text-secondary: #9a9994;
-      --border: rgba(255,255,255,0.1);
-      --border-md: rgba(255,255,255,0.2);
-      --green-bg: #0a2e22;
-      --green-text: #5DCAA5;
-      --red-text: #F0997B;
-      --red-bg: #2e1408;
-    }
-  }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg-tertiary);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 15px;
-    line-height: 1.5;
-  }
-
-  .topbar {
-    background: var(--bg);
-    border-bottom: 0.5px solid var(--border);
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .topbar-title { font-size: 16px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
-  .topbar-title i { color: var(--green); font-size: 20px; }
-  .topbar-sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
-  #record-count { font-size: 12px; color: var(--text-secondary); }
-
-  .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
-
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
-  .stat { background: var(--bg); border-radius: var(--radius-md); padding: 14px 16px; border: 0.5px solid var(--border); }
-  .stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .stat-value { font-size: 22px; font-weight: 600; color: var(--text); }
-  .stat-value.green { color: var(--green); }
-
-  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 24px; overflow: hidden; }
-  .card-header { padding: 14px 18px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-  .card-title { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
-  .card-title i { color: var(--green); }
-  .card-body { padding: 18px; }
-
-  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
-  .field { display: flex; flex-direction: column; gap: 5px; }
-  .field label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
-  .field input, .field select {
-    font-size: 14px; padding: 8px 11px;
-    border-radius: var(--radius-md);
-    border: 0.5px solid var(--border-md);
-    background: var(--bg-secondary);
-    color: var(--text);
-    width: 100%;
-  }
-  .field input:focus, .field select:focus { outline: none; border-color: var(--green); }
-  .delivery-hint { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-
-  .profit-preview {
-    background: var(--green-bg);
-    border-radius: var(--radius-md);
-    padding: 11px 16px;
-    display: flex; align-items: center; justify-content: space-between;
-    margin-top: 14px;
-  }
-  .profit-preview-label { font-size: 13px; color: var(--green-text); display: flex; align-items: center; gap: 6px; }
-  .profit-preview-val { font-size: 20px; font-weight: 600; color: var(--green); }
-
-  .btn-add {
-    background: var(--green); color: #fff; border: none;
-    border-radius: var(--radius-md); padding: 10px 22px;
-    font-size: 14px; font-weight: 600; cursor: pointer;
-    margin-top: 14px; display: inline-flex; align-items: center; gap: 7px;
-  }
-  .btn-add:hover { background: var(--green-dark); }
-
-  .month-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; padding: 16px; }
-  .month-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 14px 16px; }
-  .month-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
-  .month-name { font-size: 14px; font-weight: 600; color: var(--text); }
-  .month-meta { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-  .month-profit { font-size: 20px; font-weight: 700; color: var(--green); }
-  .bar-bg { height: 4px; background: var(--border); border-radius: 99px; }
-  .bar-fill { height: 4px; background: var(--green); border-radius: 99px; }
-
-  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .filter-row select, .filter-row input {
-    font-size: 13px; padding: 6px 10px;
-    border-radius: var(--radius-md);
-    border: 0.5px solid var(--border-md);
-    background: var(--bg-secondary);
-    color: var(--text);
-  }
-
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
-  th { background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; padding: 10px 13px; text-align: left; border-bottom: 0.5px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
-  td { padding: 10px 13px; border-bottom: 0.5px solid var(--border); color: var(--text); vertical-align: middle; }
-  tbody tr:hover td { background: var(--bg-secondary); }
-
-  .badge { display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; }
-  .badge-invoice { background: #E6F1FB; color: #0C447C; }
-  .badge-card    { background: #EEEDFE; color: #3C3489; }
-  .badge-job     { background: #FAEEDA; color: #633806; }
-  .badge-flyer   { background: #EAF3DE; color: #27500A; }
-  .badge-sticker { background: #FAECE7; color: #712B13; }
-  .badge-other   { background: var(--bg-secondary); color: var(--text-secondary); }
-
-  .badge-paid { background: #E1F5EE; color: #085041; }
-  .badge-pending { background: #FAECE7; color: #993C1D; }
-
-  .profit-cell { font-weight: 600; color: var(--green); }
-  .btn-del { background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px 7px; border-radius: 6px; font-size: 15px; }
-  .btn-del:hover { color: #A32D2D; background: var(--red-bg); }
-
-  .tabs { display: flex; gap: 6px; margin-bottom: 18px; border-bottom: 0.5px solid var(--border); }
-  .tab-btn { background: none; border: none; padding: 10px 16px; font-size: 14px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; }
-  .tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
-  .tab-page { display: none; }
-  .tab-page.active { display: block; }
-  
-  .year-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; padding: 16px; }
-  .year-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 14px 16px; text-align: center; }
-  .year-card .yprofit { font-size: 22px; font-weight: 700; color: var(--green); margin-top: 4px; }
-  .empty-msg { text-align: center; padding: 2.5rem; color: var(--text-secondary); font-size: 14px; }
-
-  /* Auth Screen Styling */
-  .auth-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg-tertiary); padding: 20px; }
-  .auth-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 32px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-  .auth-icon { font-size: 48px; color: var(--green); margin-bottom: 16px; }
-  .btn-login { background: var(--green); color: #fff; border: none; border-radius: var(--radius-md); padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
-  .btn-logout { background: none; border: 0.5px solid var(--border-md); color: var(--text-secondary); padding: 6px 12px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600; cursor: pointer; }
-  
-  .hidden { display: none !important; }
-  footer { text-align: center; font-size: 12px; color: var(--text-secondary); padding: 24px; }
-
-  /* Inline editing layout */
-  .edit-input { width: 100%; padding: 4px 6px; font-size: 13px; border: 1px solid var(--green); border-radius: 4px; background: var(--bg); color: var(--text); }
-
-  @media (max-width: 600px) {
-    .form-grid { grid-template-columns: 1fr 1fr; }
-    .topbar { flex-direction: column; align-items: flex-start; }
-    .filter-row { flex-direction: column; width: 100%; }
-    .filter-row * { width: 100%; }
-  }
-</style>
-</head>
-<body>
-
-<!-- Login Screen -->
-<div id="auth-screen" class="auth-screen">
-  <div class="auth-card">
-    <div class="auth-icon"><i class="ti ti-printer"></i></div>
-    <h2 style="margin-bottom:8px">Sales & Profit Tracker</h2>
-    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:24px">Sign in with your Google account to access your personal dashboard.</p>
-    <button class="btn-login" onclick="loginWithGoogle()"><i class="ti ti-brand-google"></i> Sign in with Google</button>
-  </div>
-</div>
-
-<!-- Main Content -->
-<div id="app-content" class="hidden">
-<div class="topbar">
-  <div>
-    <div class="topbar-title"><i class="ti ti-printer"></i> Commercial Printing & Trading Log</div>
-    <div class="topbar-sub">Personal sales & profit tracker</div>
-  </div>
-  <div class="drive-status">
-    <span id="user-display" style="font-weight:600;"></span>
-    <button class="btn-logout" onclick="logoutFirebase()"><i class="ti ti-logout"></i> Logout</button>
-    <span id="record-count">0 records</span>
-  </div>
-</div>
-
-<div class="container">
-  <div class="tabs">
-    <button class="tab-btn active" id="tab-btn-dashboard" onclick="switchTab('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
-    <button class="tab-btn" id="tab-btn-reports" onclick="switchTab('reports')"><i class="ti ti-chart-bar"></i> Reports & Insights</button>
-  </div>
-
-  <!-- DASHBOARD PAGE -->
-  <div class="tab-page active" id="tab-dashboard">
-    <div class="stats-grid">
-      <div class="stat"><div class="stat-label">Total Revenue</div><div class="stat-value" id="stat-revenue">0.00</div></div>
-      <div class="stat"><div class="stat-label">Total Cost</div><div class="stat-value" id="stat-cost">0.00</div></div>
-      <div class="stat"><div class="stat-label">Pending Payments</div><div class="stat-value" id="stat-pending" style="color:var(--red-text)">0.00</div></div>
-      <div class="stat"><div class="stat-label">Net Profit</div><div class="stat-value green" id="stat-profit">0.00</div></div>
-    </div>
-
-    <!-- Form -->
-    <div class="card">
-      <div class="card-header"><div class="card-title"><i class="ti ti-circle-plus"></i> New Entry</div></div>
-      <div class="card-body">
-        <div class="form-grid">
-          <div class="field"><label>Date</label><input type="date" id="f-date"></div>
-          <div class="field"><label>Company Name</label><input type="text" id="f-company" placeholder="e.g. Blue Mountain LLC"></div>
-          <div class="field"><label>Item / Work</label>
-            <select id="f-item" onchange="handleItemSelect()">
-              <option value="TAX INVOICE">Tax Invoice</option>
-              <option value="JOB ORDER">Job Order</option>
-              <option value="BUSINESS CARD">Business Card</option>
-              <option value="FLYER">Flyer</option>
-              <option value="STICKER">Sticker</option>
-              <option value="OTHER">Other</option>
-              <option value="__add__">+ Add new item type</option>
-            </select>
-          </div>
-          <div class="field"><label>Qty</label><input type="number" id="f-qty" min="1" placeholder="1000"></div>
-          <div class="field"><label>Cost Amount</label><input type="number" id="f-cost" step="0.01" placeholder="0.00"></div>
-          <div class="field"><label>Selling Amount</label><input type="number" id="f-sell" step="0.01" placeholder="0.00"></div>
-          <div class="field"><label>Delivery Charge</label><input type="number" id="f-delivery" step="0.01" placeholder="0.00"></div>
-          <div class="field"><label>Payment Status</label>
-            <select id="f-status">
-              <option value="PAID">Paid</option>
-              <option value="PENDING">Pending</option>
-            </select>
-          </div>
-        </div>
-        <div class="profit-preview">
-          <span class="profit-preview-label"><i class="ti ti-trending-up"></i> Net Profit Preview</span>
-          <span class="profit-preview-val" id="profit-preview">0.00</span>
-        </div>
-        <button class="btn-add" id="btn-add" onclick="addEntry()"><i class="ti ti-plus"></i> Add Entry</button>
-      </div>
-    </div>
-
-    <!-- Table -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title"><i class="ti ti-list"></i> All Transactions</div>
-        <div class="filter-row">
-          <button class="btn-drive" onclick="document.getElementById('import-file').click()"><i class="ti ti-file-import"></i> Import Excel</button>
-          <input type="file" id="import-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFile(event)">
-          <select id="filter-status" onchange="renderTable()"><option value="">All Payments</option><option value="PAID">Paid</option><option value="PENDING">Pending</option></select>
-          <select id="filter-type" onchange="renderTable()"><option value="">All Types</option></select>
-          <input type="text" id="filter-search" placeholder="Search company..." oninput="renderTable()">
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th><th>Company</th><th>Item</th><th>Qty</th><th>Cost</th><th>Selling</th><th>Delivery</th><th>Status</th><th>Profit</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- REPORTS PAGE -->
-  <div class="tab-page" id="tab-reports">
-    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
-      <div class="stat">
-        <div class="stat-label"><i class="ti ti-star" style="color:gold"></i> Top Customer (Highest Profit)</div>
-        <div class="stat-value" id="analytics-client" style="font-size:16px; margin-top:8px;">None</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label"><i class="ti ti-package" style="color:var(--green)"></i> Top Product (Highest Selling Qty)</div>
-        <div class="stat-value" id="analytics-product" style="font-size:16px; margin-top:8px;">None</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><div class="card-title"><i class="ti ti-chart-line"></i> Profit Trend</div></div>
-      <div class="card-body"><canvas id="profit-chart" height="100"></canvas></div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><div class="card-title"><i class="ti ti-calendar"></i> Monthly Summary</div></div>
-      <div class="month-grid" id="month-grid"></div>
-    </div>
-  </div>
-</div>
-<footer>Commercial Printing & Trading Log</footer>
-</div>
-
 <!-- Firebase Modular SDKs -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -376,8 +48,19 @@ function listenToDatabase() {
     entries = [];
     snapshot.forEach((doc) => { entries.push({ id: doc.id, ...doc.data() }); });
     entries.sort((a,b) => new Date(b.date) - new Date(a.date));
+    updateItemFilterOptions();
     renderAll();
   });
+}
+
+function updateItemFilterOptions() {
+  const types = new Set(Object.keys(ITEMS));
+  entries.forEach(e => { if(e.item) types.add(e.item); });
+  const filterSel = document.getElementById('filter-type');
+  const current = filterSel.value;
+  filterSel.innerHTML = '<option value="">All Types</option>' + 
+    Array.from(types).map(t => `<option value="${t}">${t}</option>`).join('');
+  filterSel.value = current;
 }
 
 window.calcProfit = () => {
@@ -409,7 +92,86 @@ window.addEntry = async () => {
   document.getElementById('profit-preview').textContent = '0.00';
 };
 
-// Inline Edit Logic (Feature 3)
+// EXCEL IMPORT FUNCTION (ഫിക്സ് ചെയ്ത ഭാഗം)
+window.handleImportFile = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      
+      // എക്സൽ ഷീറ്റിലെ വിവരങ്ങൾ JSON ലേക്ക് മാറ്റുന്നു
+      const rawRows = XLSX.utils.sheet_to_json(worksheet);
+      
+      if (rawRows.length === 0) { alert('No data found in the Excel file.'); return; }
+
+      let importedCount = 0;
+
+      for (let row of rawRows) {
+        // വലിയ അക്ഷരത്തിലോ ചെറിയ അക്ഷരത്തിലോ ഉള്ള ഹെഡിംഗുകൾ ഒരേപോലെ റീഡ് ചെയ്യാൻ വേണ്ടി
+        const dateRaw = row.DATE || row.date || '';
+        const companyRaw = row.COMPANY || row.company || row.customer || '';
+        const itemRaw = row.ITEM || row.item || 'OTHER';
+        const qtyRaw = row.QTY || row.qty || 0;
+        const costRaw = row.COST || row.cost || 0;
+        const sellRaw = row.SELLING || row.selling || row.amount || 0;
+        const deliveryRaw = row.DELIVERY || row.delivery || 0;
+        const statusRaw = (row.STATUS || row.status || 'PAID').toUpperCase();
+
+        if (!dateRaw || !companyRaw || !sellRaw) continue;
+
+        // '1000 CARD' പോലുള്ള ടെക്സ്റ്റുകളിൽ നിന്ന് സംഖ്യ മാത്രം വേർതിരിച്ചെടുക്കുന്നു
+        let cleanQty = typeof qtyRaw === 'string' ? parseFloat(qtyRaw.replace(/[^0-9.]/g, '')) : parseFloat(qtyRaw);
+        if (isNaN(cleanQty)) cleanQty = 0;
+
+        const cleanCost = parseFloat(costRaw) || 0;
+        const cleanSell = parseFloat(sellRaw) || 0;
+        const cleanDelivery = parseFloat(deliveryRaw) || 0;
+        
+        // തീയതി ഫോർമാറ്റ് കൃത്യമാക്കാൻ (DD-MM-YY അല്ലെങ്കിൽ DD-MM-YYYY ആണെങ്കിൽ YYYY-MM-DD ലേക്ക് മാറ്റുന്നു)
+        let formattedDate = dateRaw;
+        if (typeof dateRaw === 'string' && dateRaw.includes('-')) {
+          const parts = dateRaw.split('-');
+          if (parts[0].length <= 2 && parts[2].length === 2) {
+            formattedDate = `20${parts[2]}-${parts[1]}-${parts[0]}`; // e.g. 07-01-21 -> 2021-01-07
+          } else if (parts[0].length <= 2 && parts[2].length === 4) {
+            formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`; // e.g. 07-01-2021 -> 2021-01-07
+          }
+        }
+
+        const id = "xl_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now();
+        
+        // ഫയർബേസിലേക്ക് ഡാറ്റ സേവ് ചെയ്യുന്നു
+        await setDoc(doc(db, "users", currentUser.uid, "entries", id), {
+          date: formattedDate,
+          company: companyRaw.trim().toUpperCase(),
+          item: itemRaw.trim().toUpperCase(),
+          qty: cleanQty,
+          cost: cleanCost,
+          sell: cleanSell,
+          delivery: cleanDelivery,
+          status: statusRaw === 'PENDING' ? 'PENDING' : 'PAID',
+          profit: cleanSell - cleanCost - cleanDelivery
+        });
+
+        importedCount++;
+      }
+
+      alert(`Successfully imported ${importedCount} records!`);
+      event.target.value = ''; // ഇൻപുട്ട് ക്ലിയർ ചെയ്യാൻ
+    } catch (err) {
+      console.error(err);
+      alert('Error parsing Excel file: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+};
+
 window.startInlineEdit = (id) => {
   inlineEditingId = id;
   window.renderTable();
@@ -419,9 +181,9 @@ window.saveInlineEdit = async (id) => {
   const row = entries.find(e => e.id === id);
   const company = document.getElementById(`edit-comp-${id}`).value.trim().toUpperCase();
   const qty = parseFloat(document.getElementById(`edit-qty-${id}`).value)||0;
-  const cost = parseFloat(document.getElementById(`edit-cost-${id}`).value)||0;
+  const cost = document.getElementById(`edit-cost-${id}`) ? (parseFloat(document.getElementById(`edit-cost-${id}`).value)||0) : (row.cost || 0);
   const sell = parseFloat(document.getElementById(`edit-sell-${id}`).value)||0;
-  const delivery = parseFloat(document.getElementById(`edit-del-${id}`).value)||0;
+  const delivery = document.getElementById(`edit-del-${id}`) ? (parseFloat(document.getElementById(`edit-del-${id}`).value)||0) : (row.delivery || 0);
   const status = document.getElementById(`edit-status-${id}`).value;
 
   if(!company || !sell) { alert('Fields cannot be empty'); return; }
@@ -456,6 +218,7 @@ window.renderTable = () => {
   const tbody = document.getElementById('tbody');
   tbody.innerHTML = filtered.map(e => {
     const isEditing = inlineEditingId === e.id;
+    const itemClass = ITEMS[e.item] || 'other';
     if (isEditing) {
       return `
         <tr>
@@ -484,13 +247,13 @@ window.renderTable = () => {
       <tr>
         <td>${e.date}</td>
         <td><b>${e.company}</b></td>
-        <td><span class="badge badge-${ITEMS[e.item]||'other'}">${e.item}</span></td>
-        <td>${e.qty.toLocaleString()}</td>
-        <td>${e.cost.toFixed(2)}</td>
-        <td>${e.sell.toFixed(2)}</td>
-        <td>${e.delivery.toFixed(2)}</td>
+        <td><span class="badge badge-${itemClass}">${e.item}</span></td>
+        <td>${(e.qty||0).toLocaleString()}</td>
+        <td>${(e.cost||0).toFixed(2)}</td>
+        <td>${(e.sell||0).toFixed(2)}</td>
+        <td>${(e.delivery||0).toFixed(2)}</td>
         <td><span class="badge badge-${(e.status||'PAID').toLowerCase()}">${e.status||'PAID'}</span></td>
-        <td class="profit-cell">${e.profit.toFixed(2)}</td>
+        <td class="profit-cell">${(e.profit||0).toFixed(2)}</td>
         <td>
           <button class="btn-del" onclick="startInlineEdit('${e.id}')"><i class="ti ti-edit"></i></button>
           <button class="btn-del" onclick="deleteEntry('${e.id}')"><i class="ti ti-trash"></i></button>
@@ -499,7 +262,6 @@ window.renderTable = () => {
   }).join('');
 };
 
-// Advanced Analytics Logic (Feature 4)
 function calculateAnalytics() {
   if (!entries.length) return;
   
@@ -534,6 +296,7 @@ function updateStats() {
 function renderMonthly() {
   const map = {};
   entries.forEach(e => {
+    if (!e.date) return;
     const [y, m] = e.date.split('-');
     if (!m || !y) return;
     const key = y + '-' + parseInt(m);
@@ -563,6 +326,7 @@ let chartObj = null;
 function renderChart() {
   const map = {};
   entries.forEach(e => {
+    if(!e.date) return;
     const [y, m] = e.date.split('-');
     const key = y + '-' + m;
     map[key] = (map[key]||0) + e.profit;
@@ -603,5 +367,3 @@ window.handleItemSelect = () => {
 
 function renderAll() { updateStats(); window.renderTable(); calculateAnalytics(); }
 </script>
-</body>
-</html>

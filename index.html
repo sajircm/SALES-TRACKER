@@ -185,6 +185,22 @@
   .year-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; padding: 16px; }
   .year-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 14px 16px; text-align: center; }
   .year-card .yname { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+  .login-overlay {
+    position: fixed; inset: 0; background: var(--bg-tertiary); z-index: 100;
+    display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 18px; text-align: center; padding: 24px;
+  }
+  .login-overlay i.ti-printer { font-size: 44px; color: var(--green); }
+  .login-overlay h1 { font-size: 18px; font-weight: 600; color: var(--text); }
+  .login-overlay p { font-size: 13px; color: var(--text-secondary); max-width: 320px; }
+  .btn-login {
+    background: var(--green); color: #fff; border: none; border-radius: var(--radius-md);
+    padding: 12px 26px; font-size: 14px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-login:hover { background: var(--green-dark); }
+  .login-overlay.hidden { display: none; }
+  #app-content { display: none; }
+  #app-content.visible { display: block; }
   .year-card .yprofit { font-size: 22px; font-weight: 700; color: var(--green); margin-top: 4px; }
   .empty-msg { text-align: center; padding: 2.5rem; color: var(--text-secondary); font-size: 14px; }
 
@@ -220,15 +236,22 @@
 </head>
 <body>
 
+<div class="login-overlay" id="login-overlay">
+  <i class="ti ti-printer"></i>
+  <h1>Commercial Printing & Trading Log</h1>
+  <p>തുടരാൻ നിങ്ങളുടെ Google account sign in ചെയ്യൂ. ഡാറ്റ നിങ്ങളുടെ Google Drive-ൽ ആയിരിക്കും save ആകുന്നത്.</p>
+  <button class="btn-login" id="login-btn" onclick="driveSignIn()"><i class="ti ti-brand-google"></i> Sign in with Google</button>
+</div>
+
+<div id="app-content">
+
 <div class="topbar">
   <div>
     <div class="topbar-title"><i class="ti ti-printer"></i> Commercial Printing & Trading Log</div>
     <div class="topbar-sub">Personal sales & profit tracker</div>
   </div>
   <div class="drive-status">
-    <button class="btn-drive" id="drive-btn" onclick="driveSignIn()">
-      <span class="dot" id="drive-dot"></span> <span id="drive-label">Connect Google Drive</span>
-    </button>
+    <span class="dot ok" id="drive-dot"></span> <span id="drive-label">Synced to Drive</span>
     <span id="record-count">0 records</span>
   </div>
 </div>
@@ -366,6 +389,8 @@
 
 <footer>Commercial Printing & Trading Log &mdash; Personal Use</footer>
 
+</div>
+
 <script>
 const MONTHS = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 const ITEMS = {'TAX INVOICE':'invoice','JOB ORDER':'job','BUSINESS CARD':'card','FLYER':'flyer','STICKER':'sticker','OTHER':'other'};
@@ -439,14 +464,18 @@ let driveReady = false;
 function setDriveUI(state) {
   const dot = document.getElementById('drive-dot');
   const label = document.getElementById('drive-label');
-  const btn = document.getElementById('drive-btn');
   if (state === 'connected') {
-    dot.className = 'dot ok'; label.textContent = 'Synced to Drive'; btn.classList.add('connected');
+    dot.className = 'dot ok'; label.textContent = 'Synced to Drive';
   } else if (state === 'busy') {
     dot.className = 'dot busy'; label.textContent = 'Syncing...';
   } else {
-    dot.className = 'dot'; label.textContent = 'Connect Google Drive'; btn.classList.remove('connected');
+    dot.className = 'dot'; label.textContent = 'Not connected';
   }
+}
+
+function showApp() {
+  document.getElementById('login-overlay').classList.add('hidden');
+  document.getElementById('app-content').classList.add('visible');
 }
 
 function initGoogle() {
@@ -460,6 +489,7 @@ function initGoogle() {
       setDriveUI('busy');
       await driveLoadOrCreate();
       setDriveUI('connected');
+      showApp();
     }
   });
 }

@@ -15,10 +15,7 @@
     cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
   }
   .btn-drive:hover { background: var(--bg-tertiary); }
-  .btn-drive.connected { background: var(--green-bg); color: var(--green-text); border-color: var(--green); }
   .dot { width:7px; height:7px; border-radius:50%; background:#bbb; display:inline-block; }
-  .dot.ok { background: var(--green); }
-  .dot.busy { background: #d99a1f; }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
@@ -96,7 +93,7 @@
   .card-title i { color: var(--green); }
   .card-body { padding: 18px; }
 
-  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
   .field { display: flex; flex-direction: column; gap: 5px; }
   .field label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
   .field input, .field select {
@@ -106,10 +103,9 @@
     background: var(--bg-secondary);
     color: var(--text);
     width: 100%;
-    transition: border-color 0.15s;
   }
   .field input:focus, .field select:focus { outline: none; border-color: var(--green); }
-  .delivery-hint { font-size: 11px; color: var(--red-text); margin-top: 2px; }
+  .delivery-hint { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
 
   .profit-preview {
     background: var(--green-bg);
@@ -126,7 +122,6 @@
     border-radius: var(--radius-md); padding: 10px 22px;
     font-size: 14px; font-weight: 600; cursor: pointer;
     margin-top: 14px; display: inline-flex; align-items: center; gap: 7px;
-    transition: background 0.15s;
   }
   .btn-add:hover { background: var(--green-dark); }
 
@@ -135,10 +130,9 @@
   .month-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
   .month-name { font-size: 14px; font-weight: 600; color: var(--text); }
   .month-meta { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-  .month-delivery-meta { font-size: 11px; color: var(--red-text); margin-top: 1px; }
   .month-profit { font-size: 20px; font-weight: 700; color: var(--green); }
   .bar-bg { height: 4px; background: var(--border); border-radius: 99px; }
-  .bar-fill { height: 4px; background: var(--green); border-radius: 99px; transition: width 0.4s; }
+  .bar-fill { height: 4px; background: var(--green); border-radius: 99px; }
 
   .filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
   .filter-row select, .filter-row input {
@@ -150,10 +144,9 @@
   }
 
   .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 680px; }
-  th { background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; padding: 10px 13px; text-align: left; border-bottom: 0.5px solid var(--border); white-space: nowrap; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
+  th { background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; padding: 10px 13px; text-align: left; border-bottom: 0.5px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
   td { padding: 10px 13px; border-bottom: 0.5px solid var(--border); color: var(--text); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
   tbody tr:hover td { background: var(--bg-secondary); }
 
   .badge { display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; }
@@ -164,10 +157,11 @@
   .badge-sticker { background: #FAECE7; color: #712B13; }
   .badge-other   { background: var(--bg-secondary); color: var(--text-secondary); }
 
-  .profit-cell { font-weight: 600; color: var(--green); }
-  .delivery-cell { color: var(--red-text); font-size: 12px; }
+  .badge-paid { background: #E1F5EE; color: #085041; }
+  .badge-pending { background: #FAECE7; color: #993C1D; }
 
-  .btn-del { background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px 7px; border-radius: 6px; font-size: 15px; line-height: 1; }
+  .profit-cell { font-weight: 600; color: var(--green); }
+  .btn-del { background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px 7px; border-radius: 6px; font-size: 15px; }
   .btn-del:hover { color: #A32D2D; background: var(--red-bg); }
 
   .tabs { display: flex; gap: 6px; margin-bottom: 18px; border-bottom: 0.5px solid var(--border); }
@@ -175,9 +169,9 @@
   .tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
   .tab-page { display: none; }
   .tab-page.active { display: block; }
+  
   .year-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; padding: 16px; }
   .year-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 14px 16px; text-align: center; }
-  .year-card .yname { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
   .year-card .yprofit { font-size: 22px; font-weight: 700; color: var(--green); margin-top: 4px; }
   .empty-msg { text-align: center; padding: 2.5rem; color: var(--text-secondary); font-size: 14px; }
 
@@ -185,204 +179,159 @@
   .auth-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg-tertiary); padding: 20px; }
   .auth-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 32px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
   .auth-icon { font-size: 48px; color: var(--green); margin-bottom: 16px; }
-  .auth-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-  .auth-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; }
   .btn-login { background: var(--green); color: #fff; border: none; border-radius: var(--radius-md); padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
-  .btn-login:hover { background: var(--green-dark); }
-  .btn-logout { background: none; border: 0.5px solid var(--border-md); color: var(--text-secondary); padding: 6px 12px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-  .btn-logout:hover { background: var(--bg-secondary); color: var(--text); }
+  .btn-logout { background: none; border: 0.5px solid var(--border-md); color: var(--text-secondary); padding: 6px 12px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600; cursor: pointer; }
   
   .hidden { display: none !important; }
-
   footer { text-align: center; font-size: 12px; color: var(--text-secondary); padding: 24px; }
 
-  @media (max-width: 600px) {
-    body { font-size: 14px; }
-    .topbar { padding: 10px 12px; flex-direction: column; align-items: flex-start; }
-    .topbar-title { font-size: 14px; }
-    .container { padding: 12px 8px; }
-    .card-body { padding: 12px; }
-    .card-header { padding: 12px 14px; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .stat { padding: 11px 12px; }
-    .stat-value { font-size: 18px; }
-    .form-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .btn-add { width: 100%; justify-content: center; }
-    .month-grid { grid-template-columns: 1fr; padding: 12px; }
-    .filter-row { flex-direction: column; width: 100%; }
-    .filter-row select, .filter-row input { width: 100%; }
-    .drive-status { width: 100%; justify-content: space-between; }
-    .btn-drive { font-size: 11px; padding: 6px 10px; }
-    table { font-size: 12px; min-width: 560px; }
-    th, td { padding: 8px 9px; }
-  }
+  /* Inline editing layout */
+  .edit-input { width: 100%; padding: 4px 6px; font-size: 13px; border: 1px solid var(--green); border-radius: 4px; background: var(--bg); color: var(--text); }
 
-  @media (max-width: 400px) {
-    .form-grid { grid-template-columns: 1fr; }
-    .stats-grid { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .topbar { flex-direction: column; align-items: flex-start; }
+    .filter-row { flex-direction: column; width: 100%; }
+    .filter-row * { width: 100%; }
   }
 </style>
 </head>
 <body>
 
+<!-- Login Screen -->
 <div id="auth-screen" class="auth-screen">
   <div class="auth-card">
     <div class="auth-icon"><i class="ti ti-printer"></i></div>
-    <div class="auth-title">Sales & Profit Tracker</div>
-    <div class="auth-desc">Please sign in with your Google account to access your personal dashboard.</div>
+    <h2 style="margin-bottom:8px">Sales & Profit Tracker</h2>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:24px">Sign in with your Google account to access your personal dashboard.</p>
     <button class="btn-login" onclick="loginWithGoogle()"><i class="ti ti-brand-google"></i> Sign in with Google</button>
   </div>
 </div>
 
+<!-- Main Content -->
 <div id="app-content" class="hidden">
-
 <div class="topbar">
   <div>
     <div class="topbar-title"><i class="ti ti-printer"></i> Commercial Printing & Trading Log</div>
     <div class="topbar-sub">Personal sales & profit tracker</div>
   </div>
   <div class="drive-status">
-    <span id="user-display" style="font-weight:600; color:var(--text);"></span>
+    <span id="user-display" style="font-weight:600;"></span>
     <button class="btn-logout" onclick="logoutFirebase()"><i class="ti ti-logout"></i> Logout</button>
     <span id="record-count">0 records</span>
   </div>
 </div>
 
 <div class="container">
-
   <div class="tabs">
     <button class="tab-btn active" id="tab-btn-dashboard" onclick="switchTab('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
-    <button class="tab-btn" id="tab-btn-reports" onclick="switchTab('reports')"><i class="ti ti-chart-bar"></i> Reports</button>
+    <button class="tab-btn" id="tab-btn-reports" onclick="switchTab('reports')"><i class="ti ti-chart-bar"></i> Reports & Insights</button>
   </div>
 
+  <!-- DASHBOARD PAGE -->
   <div class="tab-page active" id="tab-dashboard">
-
-  <div class="stats-grid">
-    <div class="stat"><div class="stat-label">Total Revenue</div><div class="stat-value" id="stat-revenue">0.00</div></div>
-    <div class="stat"><div class="stat-label">Total Cost</div><div class="stat-value" id="stat-cost">0.00</div></div>
-    <div class="stat"><div class="stat-label">Total Delivery</div><div class="stat-value" id="stat-delivery">0.00</div></div>
-    <div class="stat"><div class="stat-label">Cumulative Profit</div><div class="stat-value green" id="stat-profit">0.00</div></div>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title"><i class="ti ti-circle-plus"></i> New Entry</div>
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-label">Total Revenue</div><div class="stat-value" id="stat-revenue">0.00</div></div>
+      <div class="stat"><div class="stat-label">Total Cost</div><div class="stat-value" id="stat-cost">0.00</div></div>
+      <div class="stat"><div class="stat-label">Pending Payments</div><div class="stat-value" id="stat-pending" style="color:var(--red-text)">0.00</div></div>
+      <div class="stat"><div class="stat-label">Net Profit</div><div class="stat-value green" id="stat-profit">0.00</div></div>
     </div>
-    <div class="card-body">
-      <div class="form-grid">
-        <div class="field"><label>Date</label><input type="date" id="f-date"></div>
-        <div class="field"><label>Company Name</label><input type="text" id="f-company" placeholder="e.g. Blue Mountain LLC"></div>
-        <div class="field"><label>Item / Work</label>
-          <select id="f-item" onchange="handleItemSelect()">
-            <option value="TAX INVOICE">Tax Invoice</option>
-            <option value="JOB ORDER">Job Order</option>
-            <option value="BUSINESS CARD">Business Card</option>
-            <option value="FLYER">Flyer</option>
-            <option value="STICKER">Sticker</option>
-            <option value="OTHER">Other</option>
-            <option value="__add__">+ Add new item type</option>
-          </select>
+
+    <!-- Form -->
+    <div class="card">
+      <div class="card-header"><div class="card-title"><i class="ti ti-circle-plus"></i> New Entry</div></div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="field"><label>Date</label><input type="date" id="f-date"></div>
+          <div class="field"><label>Company Name</label><input type="text" id="f-company" placeholder="e.g. Blue Mountain LLC"></div>
+          <div class="field"><label>Item / Work</label>
+            <select id="f-item" onchange="handleItemSelect()">
+              <option value="TAX INVOICE">Tax Invoice</option>
+              <option value="JOB ORDER">Job Order</option>
+              <option value="BUSINESS CARD">Business Card</option>
+              <option value="FLYER">Flyer</option>
+              <option value="STICKER">Sticker</option>
+              <option value="OTHER">Other</option>
+              <option value="__add__">+ Add new item type</option>
+            </select>
+          </div>
+          <div class="field"><label>Qty</label><input type="number" id="f-qty" min="1" placeholder="1000"></div>
+          <div class="field"><label>Cost Amount</label><input type="number" id="f-cost" step="0.01" placeholder="0.00"></div>
+          <div class="field"><label>Selling Amount</label><input type="number" id="f-sell" step="0.01" placeholder="0.00"></div>
+          <div class="field"><label>Delivery Charge</label><input type="number" id="f-delivery" step="0.01" placeholder="0.00"></div>
+          <div class="field"><label>Payment Status</label>
+            <select id="f-status">
+              <option value="PAID">Paid</option>
+              <option value="PENDING">Pending</option>
+            </select>
+          </div>
         </div>
-        <div class="field"><label>Qty</label><input type="number" id="f-qty" min="1" placeholder="e.g. 1000"></div>
-        <div class="field"><label>Cost Amount</label><input type="number" id="f-cost" step="0.01" placeholder="0.00"></div>
-        <div class="field"><label>Selling Amount</label><input type="number" id="f-sell" step="0.01" placeholder="0.00"></div>
-        <div class="field">
-          <label>Delivery Charge</label>
-          <input type="number" id="f-delivery" step="0.01" placeholder="0.00">
-          <span class="delivery-hint">— deducted from net profit</span>
+        <div class="profit-preview">
+          <span class="profit-preview-label"><i class="ti ti-trending-up"></i> Net Profit Preview</span>
+          <span class="profit-preview-val" id="profit-preview">0.00</span>
+        </div>
+        <button class="btn-add" id="btn-add" onclick="addEntry()"><i class="ti ti-plus"></i> Add Entry</button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="ti ti-list"></i> All Transactions</div>
+        <div class="filter-row">
+          <button class="btn-drive" onclick="document.getElementById('import-file').click()"><i class="ti ti-file-import"></i> Import Excel</button>
+          <input type="file" id="import-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFile(event)">
+          <select id="filter-status" onchange="renderTable()"><option value="">All Payments</option><option value="PAID">Paid</option><option value="PENDING">Pending</option></select>
+          <select id="filter-type" onchange="renderTable()"><option value="">All Types</option></select>
+          <input type="text" id="filter-search" placeholder="Search company..." oninput="renderTable()">
         </div>
       </div>
-      <div class="profit-preview">
-        <span class="profit-preview-label"><i class="ti ti-trending-up"></i> Net Profit &nbsp;<span style="font-weight:400;font-size:11px">(Selling − Cost − Delivery)</span></span>
-        <span class="profit-preview-val" id="profit-preview">0.00</span>
-      </div>
-      <button class="btn-add" id="btn-add" onclick="addEntry()"><i class="ti ti-plus"></i> Add Entry</button>
-      <button class="btn-add" id="btn-cancel-edit" onclick="cancelEdit()" style="display:none;background:var(--bg-secondary);color:var(--text);border:0.5px solid var(--border-md)"><i class="ti ti-x"></i> Cancel</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title"><i class="ti ti-list"></i> All Transactions</div>
-      <div class="filter-row">
-        <button class="btn-drive" onclick="document.getElementById('import-file').click()"><i class="ti ti-file-import"></i> Import Excel/CSV</button>
-        <input type="file" id="import-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFile(event)">
-        <select id="filter-year" onchange="renderTable()">
-          <option value="">All Years</option>
-        </select>
-        <select id="filter-month" onchange="renderTable()">
-          <option value="">All Months</option>
-          <option value="1">January</option><option value="2">February</option>
-          <option value="3">March</option><option value="4">April</option>
-          <option value="5">May</option><option value="6">June</option>
-          <option value="7">July</option><option value="8">August</option>
-          <option value="9">September</option><option value="10">October</option>
-          <option value="11">November</option><option value="12">December</option>
-        </select>
-        <select id="filter-type" onchange="renderTable()">
-          <option value="">All Types</option>
-        </select>
-        <input type="text" id="filter-search" placeholder="Search company..." oninput="renderTable()" style="width:160px">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Company</th><th>Item</th><th>Qty</th><th>Cost</th><th>Selling</th><th>Delivery</th><th>Status</th><th>Profit</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
       </div>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th><th>Company</th><th>Item</th>
-            <th>Qty</th><th>Cost</th><th>Selling</th><th>Delivery</th><th>Net Profit</th><th></th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
   </div>
 
-  </div>
-
+  <!-- REPORTS PAGE -->
   <div class="tab-page" id="tab-reports">
-
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title"><i class="ti ti-calendar"></i> Yearly Profit Summary</div>
+    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+      <div class="stat">
+        <div class="stat-label"><i class="ti ti-star" style="color:gold"></i> Top Customer (Highest Profit)</div>
+        <div class="stat-value" id="analytics-client" style="font-size:16px; margin-top:8px;">None</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label"><i class="ti ti-package" style="color:var(--green)"></i> Top Product (Highest Selling Qty)</div>
+        <div class="stat-value" id="analytics-product" style="font-size:16px; margin-top:8px;">None</div>
+      </div>
     </div>
-    <div class="year-grid" id="year-grid">
-      <div class="empty-msg">No data yet.</div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title"><i class="ti ti-chart-line"></i> Profit Trend</div></div>
+      <div class="card-body"><canvas id="profit-chart" height="100"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title"><i class="ti ti-calendar"></i> Monthly Summary</div></div>
+      <div class="month-grid" id="month-grid"></div>
     </div>
   </div>
-
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title"><i class="ti ti-chart-line"></i> Profit Trend</div>
-    </div>
-    <div class="card-body">
-      <canvas id="profit-chart" height="110"></canvas>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title"><i class="ti ti-calendar-stats"></i> Monthly Profit Summary</div>
-    </div>
-    <div class="month-grid" id="month-grid">
-      <div class="empty-msg">No data yet. Add your first entry above.</div>
-    </div>
-  </div>
-
-  </div>
-
+</div>
+<footer>Commercial Printing & Trading Log</footer>
 </div>
 
-<footer>Commercial Printing & Trading Log &mdash; Personal Use</footer>
-
-</div>
-
+<!-- Firebase Modular SDKs -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// ⚠️ നിങ്ങളുടെ സ്വന്തം ഫയർബേസ് കോൺഫിഗറേഷൻ വിജയകരമായി ഇവിടെ ആഡ് ചെയ്തിരിക്കുന്നു
 const firebaseConfig = {
   apiKey: "AIzaSyBBpofukhr90oqarAQ9qnep6T2l_Ds10sY",
   authDomain: "sales-tracker-3907c.firebaseapp.com",
@@ -393,7 +342,6 @@ const firebaseConfig = {
   measurementId: "G-4MJ9HHMDHB"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -401,385 +349,259 @@ const provider = new GoogleAuthProvider();
 
 const MONTHS = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 const ITEMS = {'TAX INVOICE':'invoice','JOB ORDER':'job','BUSINESS CARD':'card','FLYER':'flyer','STICKER':'sticker','OTHER':'other'};
-const CUSTOM_ITEMS_KEY = 'cptl_custom_items';
 let customItems = [];
 let entries = [];
-let editingId = null;
 let currentUser = null;
+let inlineEditingId = null;
 
-// Auth Functions attached to window for HTML onClick triggers
-window.loginWithGoogle = () => {
-  signInWithPopup(auth, provider).catch(error => alert("ലോഗിൻ ചെയ്യാൻ പറ്റിയില്ല: " + error.message));
-};
+window.loginWithGoogle = () => { signInWithPopup(auth, provider).catch(e => alert(e.message)); };
+window.logoutFirebase = () => { signOut(auth); };
 
-window.logoutFirebase = () => {
-  signOut(auth).catch(error => console.error("Error signing out: ", error));
-};
-
-// Listen for Auth Changes
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUser = user;
     document.getElementById('user-display').textContent = user.displayName;
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('app-content').classList.remove('hidden');
-    loadCustomItems();
     listenToDatabase();
   } else {
     currentUser = null;
     document.getElementById('auth-screen').classList.remove('hidden');
     document.getElementById('app-content').classList.add('hidden');
-    entries = [];
   }
 });
 
 function listenToDatabase() {
-  if (!currentUser) return;
-  // Realtime updates directly sync with user ID bucket
   onSnapshot(collection(db, "users", currentUser.uid, "entries"), (snapshot) => {
     entries = [];
-    snapshot.forEach((doc) => {
-      entries.push({ id: doc.id, ...doc.data() });
-    });
-    // Sort transactions by date descending
+    snapshot.forEach((doc) => { entries.push({ id: doc.id, ...doc.data() }); });
     entries.sort((a,b) => new Date(b.date) - new Date(a.date));
     renderAll();
   });
 }
 
-window.loadCustomItems = () => {
-  try { customItems = JSON.parse(localStorage.getItem(CUSTOM_ITEMS_KEY) || '[]'); } catch(e) { customItems = []; }
-  const sel = document.getElementById('f-item');
-  const addOpt = sel.querySelector('option[value="__add__"]');
-  customItems.forEach(name => {
-    if (!sel.querySelector(`option[value="${name}"]`)) {
-      const opt = document.createElement('option');
-      opt.value = name; opt.textContent = name;
-      sel.insertBefore(opt, addOpt);
-    }
+window.calcProfit = () => {
+  const sell = parseFloat(document.getElementById('f-sell').value)||0;
+  const cost = parseFloat(document.getElementById('f-cost').value)||0;
+  const del = parseFloat(document.getElementById('f-delivery').value)||0;
+  document.getElementById('profit-preview').textContent = (sell - cost - del).toFixed(2);
+};
+['f-sell','f-cost','f-delivery'].forEach(id => document.getElementById(id).addEventListener('input', window.calcProfit));
+
+window.addEntry = async () => {
+  const date = document.getElementById('f-date').value;
+  const company = document.getElementById('f-company').value.trim().toUpperCase();
+  const item = document.getElementById('f-item').value;
+  const qty = parseFloat(document.getElementById('f-qty').value)||0;
+  const cost = parseFloat(document.getElementById('f-cost').value)||0;
+  const sell = parseFloat(document.getElementById('f-sell').value)||0;
+  const delivery = parseFloat(document.getElementById('f-delivery').value)||0;
+  const status = document.getElementById('f-status').value;
+  
+  if (!date || !company || !sell) { alert('Date, Company, and Selling Amount are required.'); return; }
+  
+  const id = "id_" + Date.now();
+  await setDoc(doc(db, "users", currentUser.uid, "entries", id), {
+    date, company, item, qty, cost, sell, delivery, status, profit: sell - cost - delivery
   });
-  window.populateItemFilter();
+  
+  ['f-company','f-qty','f-cost','f-sell','f-delivery'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('profit-preview').textContent = '0.00';
 };
 
-window.handleItemSelect = () => {
-  const sel = document.getElementById('f-item');
-  if (sel.value !== '__add__') return;
-  const name = (prompt('പുതിയ item type-ന്റെ പേര് എഴുതൂ:')||'').trim().toUpperCase();
-  const addOpt = sel.querySelector('option[value="__add__"]');
-  if (!name) { sel.value = 'OTHER'; return; }
-  if (!customItems.includes(name)) {
-    customItems.push(name);
-    localStorage.setItem(CUSTOM_ITEMS_KEY, JSON.stringify(customItems));
-  }
-  if (!sel.querySelector(`option[value="${name}"]`)) {
-    const opt = document.createElement('option');
-    opt.value = name; opt.textContent = name;
-    sel.insertBefore(opt, addOpt);
-  }
-  sel.value = name;
-  window.populateItemFilter();
+// Inline Edit Logic (Feature 3)
+window.startInlineEdit = (id) => {
+  inlineEditingId = id;
+  window.renderTable();
 };
 
-window.populateItemFilter = () => {
-  const sel = document.getElementById('filter-type');
-  const current = sel.value;
-  const allTypes = ['TAX INVOICE','JOB ORDER','BUSINESS CARD','FLYER','STICKER','OTHER', ...customItems];
-  sel.innerHTML = '<option value="">All Types</option>' + allTypes.map(t=>`<option value="${t}">${t}</option>`).join('');
-  if (allTypes.includes(current)) sel.value = current;
+window.saveInlineEdit = async (id) => {
+  const row = entries.find(e => e.id === id);
+  const company = document.getElementById(`edit-comp-${id}`).value.trim().toUpperCase();
+  const qty = parseFloat(document.getElementById(`edit-qty-${id}`).value)||0;
+  const cost = parseFloat(document.getElementById(`edit-cost-${id}`).value)||0;
+  const sell = parseFloat(document.getElementById(`edit-sell-${id}`).value)||0;
+  const delivery = parseFloat(document.getElementById(`edit-del-${id}`).value)||0;
+  const status = document.getElementById(`edit-status-${id}`).value;
+
+  if(!company || !sell) { alert('Fields cannot be empty'); return; }
+
+  await setDoc(doc(db, "users", currentUser.uid, "entries", id), {
+    ...row, company, qty, cost, sell, delivery, status, profit: sell - cost - delivery
+  });
+  inlineEditingId = null;
 };
 
-function getMonth(date) { return parseInt((date||'').split('-')[1]||0); }
-function getYear(date) { return parseInt((date||'').split('-')[0]||0); }
+window.cancelInlineEdit = () => {
+  inlineEditingId = null;
+  window.renderTable();
+};
+
+window.deleteEntry = async (id) => {
+  if (confirm('Delete this entry?')) await deleteDoc(doc(db, "users", currentUser.uid, "entries", id));
+};
+
+window.renderTable = () => {
+  const search = document.getElementById('filter-search').value.toLowerCase();
+  const statusFilter = document.getElementById('filter-status').value;
+  const typeFilter = document.getElementById('filter-type').value;
+  
+  const filtered = entries.filter(e => {
+    if (search && !e.company.toLowerCase().includes(search)) return false;
+    if (statusFilter && e.status !== statusFilter) return false;
+    if (typeFilter && e.item !== typeFilter) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = filtered.map(e => {
+    const isEditing = inlineEditingId === e.id;
+    if (isEditing) {
+      return `
+        <tr>
+          <td>${e.date}</td>
+          <td><input type="text" id="edit-comp-${e.id}" class="edit-input" value="${e.company}"></td>
+          <td>${e.item}</td>
+          <td><input type="number" id="edit-qty-${e.id}" class="edit-input" value="${e.qty}"></td>
+          <td><input type="number" id="edit-cost-${e.id}" class="edit-input" value="${e.cost}"></td>
+          <td><input type="number" id="edit-sell-${e.id}" class="edit-input" value="${e.sell}"></td>
+          <td><input type="number" id="edit-del-${e.id}" class="edit-input" value="${e.delivery}"></td>
+          <td>
+            <select id="edit-status-${e.id}" class="edit-input">
+              <option value="PAID" ${e.status==='PAID'?'selected':''}>Paid</option>
+              <option value="PENDING" ${e.status==='PENDING'?'selected':''}>Pending</option>
+            </select>
+          </td>
+          <td class="profit-cell">${e.profit.toFixed(2)}</td>
+          <td>
+            <button class="btn-del" onclick="saveInlineEdit('${e.id}')" style="color:var(--green)"><i class="ti ti-check"></i></button>
+            <button class="btn-del" onclick="cancelInlineEdit()"><i class="ti ti-x"></i></button>
+          </td>
+        </tr>`;
+    }
+
+    return `
+      <tr>
+        <td>${e.date}</td>
+        <td><b>${e.company}</b></td>
+        <td><span class="badge badge-${ITEMS[e.item]||'other'}">${e.item}</span></td>
+        <td>${e.qty.toLocaleString()}</td>
+        <td>${e.cost.toFixed(2)}</td>
+        <td>${e.sell.toFixed(2)}</td>
+        <td>${e.delivery.toFixed(2)}</td>
+        <td><span class="badge badge-${(e.status||'PAID').toLowerCase()}">${e.status||'PAID'}</span></td>
+        <td class="profit-cell">${e.profit.toFixed(2)}</td>
+        <td>
+          <button class="btn-del" onclick="startInlineEdit('${e.id}')"><i class="ti ti-edit"></i></button>
+          <button class="btn-del" onclick="deleteEntry('${e.id}')"><i class="ti ti-trash"></i></button>
+        </td>
+      </tr>`;
+  }).join('');
+};
+
+// Advanced Analytics Logic (Feature 4)
+function calculateAnalytics() {
+  if (!entries.length) return;
+  
+  const clientMap = {};
+  const productMap = {};
+  
+  entries.forEach(e => {
+    clientMap[e.company] = (clientMap[e.company]||0) + e.profit;
+    productMap[e.item] = (productMap[e.item]||0) + e.qty;
+  });
+  
+  const topClient = Object.keys(clientMap).reduce((a, b) => clientMap[a] > clientMap[b] ? a : b, "None");
+  const topProduct = Object.keys(productMap).reduce((a, b) => productMap[a] > productMap[b] ? a : b, "None");
+  
+  document.getElementById('analytics-client').innerHTML = topClient !== "None" ? `${topClient} <span style="color:var(--green);font-size:12px;">(Profit: AED ${clientMap[topClient].toFixed(2)})</span>` : "No data";
+  document.getElementById('analytics-product').innerHTML = topProduct !== "None" ? `${topProduct} <span style="color:var(--text-secondary);font-size:12px;">(Qty: ${productMap[topProduct].toLocaleString()})</span>` : "No data";
+}
+
+function updateStats() {
+  let rev = 0, cost = 0, del = 0, prof = 0, pending = 0;
+  entries.forEach(e => {
+    rev += e.sell; cost += e.cost; del += e.delivery; prof += e.profit;
+    if (e.status === 'PENDING') pending += e.sell;
+  });
+  document.getElementById('stat-revenue').textContent = rev.toFixed(2);
+  document.getElementById('stat-cost').textContent = cost.toFixed(2);
+  document.getElementById('stat-pending').textContent = pending.toFixed(2);
+  document.getElementById('stat-profit').textContent = prof.toFixed(2);
+  document.getElementById('record-count').textContent = entries.length + ' records';
+}
+
+function renderMonthly() {
+  const map = {};
+  entries.forEach(e => {
+    const [y, m] = e.date.split('-');
+    if (!m || !y) return;
+    const key = y + '-' + parseInt(m);
+    if (!map[key]) map[key] = { year: y, month: parseInt(m), profit: 0, count: 0 };
+    map[key].profit += e.profit;
+    map[key].count++;
+  });
+  
+  const el = document.getElementById('month-grid');
+  const keys = Object.keys(map).sort();
+  if(!keys.length) { el.innerHTML = '<div class="empty-msg">No entries recorded.</div>'; return; }
+  
+  el.innerHTML = keys.map(k => `
+    <div class="month-card">
+      <div class="month-top">
+        <div>
+          <div class="month-name">${MONTHS[map[k].month]} ${map[k].year}</div>
+          <div class="month-meta">${map[k].count} orders</div>
+        </div>
+        <div class="month-profit">${map[k].profit.toFixed(2)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+let chartObj = null;
+function renderChart() {
+  const map = {};
+  entries.forEach(e => {
+    const [y, m] = e.date.split('-');
+    const key = y + '-' + m;
+    map[key] = (map[key]||0) + e.profit;
+  });
+  const keys = Object.keys(map).sort();
+  const ctx = document.getElementById('profit-chart');
+  if (!ctx) return;
+  if (chartObj) chartObj.destroy();
+  chartObj = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: keys.map(k => k),
+      datasets: [{ data: keys.map(k => map[k]), borderColor: '#1D9E75', tension: 0.2, fill: false }]
+    },
+    options: { plugins: { legend: { display: false } } }
+  });
+}
 
 window.switchTab = (name) => {
   document.getElementById('tab-dashboard').classList.toggle('active', name==='dashboard');
   document.getElementById('tab-reports').classList.toggle('active', name==='reports');
   document.getElementById('tab-btn-dashboard').classList.toggle('active', name==='dashboard');
   document.getElementById('tab-btn-reports').classList.toggle('active', name==='reports');
-  if (name === 'reports') renderChart();
+  if (name === 'reports') { renderChart(); renderMonthly(); calculateAnalytics(); }
 };
 
-let profitChart = null;
-function renderChart() {
-  const map = {};
-  entries.forEach(e => {
-    const mm = getMonth(e.date), yy = getYear(e.date);
-    if (!mm || !yy) return;
-    const key = yy + '-' + String(mm).padStart(2,'0');
-    map[key] = (map[key]||0) + e.profit;
-  });
-  const keys = Object.keys(map).sort();
-  const labels = keys.map(k => { const [y,m]=k.split('-'); return MONTHS[parseInt(m)].slice(0,3) + ' ' + y; });
-  const data = keys.map(k => map[k]);
-  const ctx = document.getElementById('profit-chart');
-  if (!ctx) return;
-  if (profitChart) profitChart.destroy();
-  profitChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets: [{ label: 'Net Profit', data, borderColor: '#1D9E75', backgroundColor: 'rgba(29,158,117,0.15)', fill: true, tension: 0.3 }] },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-  });
-}
-
-function renderYearly() {
-  const map = {};
-  entries.forEach(e => {
-    const yy = getYear(e.date);
-    if (!yy) return;
-    if (!map[yy]) map[yy] = {profit:0, count:0};
-    map[yy].profit += e.profit;
-    map[yy].count++;
-  });
-  const years = Object.keys(map).sort((a,b)=>b-a);
-  const el = document.getElementById('year-grid');
-  if (!years.length) { el.innerHTML = '<div class="empty-msg">No data yet.</div>'; return; }
-  el.innerHTML = years.map(y => `
-    <div class="year-card">
-      <div class="yname">${y}</div>
-      <div class="yprofit">${map[y].profit.toFixed(2)}</div>
-      <div class="month-meta">${map[y].count} transactions</div>
-    </div>
-  `).join('');
-}
-
-window.calcProfit = () => {
-  const sell = parseFloat(document.getElementById('f-sell').value)||0;
-  const cost = parseFloat(document.getElementById('f-cost').value)||0;
-  const delivery = parseFloat(document.getElementById('f-delivery').value)||0;
-  document.getElementById('profit-preview').textContent = (sell - cost - delivery).toFixed(2);
+window.handleItemSelect = () => {
+  const sel = document.getElementById('f-item');
+  if (sel.value !== '__add__') return;
+  const name = (prompt('Enter custom product/item name:')||'').trim().toUpperCase();
+  if (name) {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    sel.insertBefore(opt, sel.lastChild);
+    sel.value = name;
+  } else { sel.value = 'OTHER'; }
 };
 
-['f-sell','f-cost','f-delivery'].forEach(id => {
-  document.getElementById(id).addEventListener('input', window.calcProfit);
-});
-
-function excelDateToYMD(serial) {
-  const d = new Date(Math.round((serial - 25569) * 86400 * 1000));
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-
-function parseDateValue(v) {
-  if (v === null || v === undefined || v === '') return '';
-  if (typeof v === 'number') return excelDateToYMD(v);
-  const s = String(v).trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-  if (m) {
-    let [_, a, b, y] = m;
-    if (y.length === 2) y = '20'+y;
-    return `${y}-${String(a).padStart(2,'0')}-${String(b).padStart(2,'0')}`;
-  }
-  const d = new Date(s);
-  if (!isNaN(d)) return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  return '';
-}
-
-function findField(row, names) {
-  const keys = Object.keys(row);
-  for (const n of names) {
-    const k = keys.find(k => k.toLowerCase().replace(/[^a-z0-9]/g,'') === n.toLowerCase().replace(/[^a-z0-9]/g,''));
-    if (k !== undefined) return row[k];
-  }
-  return undefined;
-}
-
-window.handleImportFile = (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    try {
-      const wb = XLSX.read(e.target.result, { type: 'array', cellDates: false });
-      const sheet = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-      let imported = 0, skipped = 0;
-      
-      for (const row of rows) {
-        const dateRaw = findField(row, ['date']);
-        const company = findField(row, ['company','companyname','customer','client']);
-        let item = findField(row, ['item','itemwork','itemtype','work','description']);
-        const qty = parseFloat(findField(row, ['qty','quantity'])) || 0;
-        const cost = parseFloat(findField(row, ['cost','costamount'])) || 0;
-        const sell = parseFloat(findField(row, ['sell','selling','sellingamount','amount','price'])) || 0;
-        const delivery = parseFloat(findField(row, ['delivery','deliverycharge'])) || 0;
-        const date = parseDateValue(dateRaw);
-        if (!date || !company || !sell) { skipped++; continue; }
-        item = (item ? String(item).trim().toUpperCase() : 'OTHER');
-        if (!ITEMS[item] && !customItems.includes(item)) {
-          customItems.push(item);
-          localStorage.setItem(CUSTOM_ITEMS_KEY, JSON.stringify(customItems));
-        }
-        
-        const docId = "id_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
-        await setDoc(docDocRef(docId), {
-          date, company: String(company).trim().toUpperCase(), item, qty, cost, sell, delivery, profit: sell-cost-delivery
-        });
-        imported++;
-      }
-      window.loadCustomItems();
-      alert(`Import complete: ${imported} entries added${skipped?`, ${skipped} skipped.`:''}`);
-    } catch (err) {
-      console.error(err);
-      alert('File read ചെയ്യാൻ പറ്റിയില്ല.');
-    }
-    event.target.value = '';
-  };
-  reader.readAsArrayBuffer(file);
-};
-
-// Helper to get doc reference path easily
-function docDocRef(id) {
-  return doc(db, "users", currentUser.uid, "entries", id);
-}
-
-window.addEntry = async () => {
-  const date = document.getElementById('f-date').value;
-  const company = document.getElementById('f-company').value.trim();
-  const item = document.getElementById('f-item').value;
-  const qty = parseFloat(document.getElementById('f-qty').value)||0;
-  const cost = parseFloat(document.getElementById('f-cost').value)||0;
-  const sell = parseFloat(document.getElementById('f-sell').value)||0;
-  const delivery = parseFloat(document.getElementById('f-delivery').value)||0;
-  if (!date || !company || !sell) { alert('Date, Company, and Selling Amount are required.'); return; }
-  
-  const targetId = editingId ? editingId : "id_" + Date.now();
-  
-  try {
-    await setDoc(docDocRef(targetId), {
-      date, company: company.toUpperCase(), item, qty, cost, sell, delivery, profit: sell-cost-delivery
-    });
-    if (editingId) window.cancelEdit();
-    ['f-date','f-company','f-qty','f-cost','f-sell','f-delivery'].forEach(id => { document.getElementById(id).value=''; });
-    document.getElementById('profit-preview').textContent = '0.00';
-  } catch(e) {
-    alert("ഡാറ്റ സേവ് ചെയ്യാൻ കഴിഞ്ഞില്ല: " + e.message);
-  }
-};
-
-window.editEntry = (id) => {
-  const e = entries.find(x => x.id === id);
-  if (!e) return;
-  editingId = id;
-  document.getElementById('f-date').value = e.date;
-  document.getElementById('f-company').value = e.company;
-  document.getElementById('f-item').value = e.item;
-  document.getElementById('f-qty').value = e.qty;
-  document.getElementById('f-cost').value = e.cost;
-  document.getElementById('f-sell').value = e.sell;
-  document.getElementById('f-delivery').value = e.delivery;
-  window.calcProfit();
-  const btn = document.getElementById('btn-add');
-  btn.innerHTML = '<i class="ti ti-check"></i> Update Entry';
-  document.getElementById('btn-cancel-edit').style.display = 'inline-flex';
-  document.querySelector('.card').scrollIntoView({behavior:'smooth'});
-};
-
-window.cancelEdit = () => {
-  editingId = null;
-  const btn = document.getElementById('btn-add');
-  btn.innerHTML = '<i class="ti ti-plus"></i> Add Entry';
-  document.getElementById('btn-cancel-edit').style.display = 'none';
-  ['f-date','f-company','f-qty','f-cost','f-sell','f-delivery'].forEach(id => { document.getElementById(id).value=''; });
-  document.getElementById('profit-preview').textContent = '0.00';
-};
-
-window.deleteEntry = async (id) => {
-  if (!confirm('Delete this entry?')) return;
-  try {
-    await deleteDoc(docDocRef(id));
-  } catch(e) {
-    alert("ഡിലീറ്റ് ചെയ്യാൻ സാധിച്ചില്ല: " + e.message);
-  }
-};
-
-function getBadge(item) {
-  const cls = ITEMS[item]||'other';
-  return `<span class="badge badge-${cls}">${item}</span>`;
-}
-
-function renderMonthly() {
-  const map = {};
-  entries.forEach(e => {
-    const mm = getMonth(e.date);
-    const yy = getYear(e.date);
-    if (!mm || !yy) return;
-    const key = yy + '-' + mm;
-    if (!map[key]) map[key] = {year:yy, month:mm, profit:0, count:0, delivery:0};
-    map[key].profit += e.profit;
-    map[key].delivery += e.delivery;
-    map[key].count++;
-  });
-  const keys = Object.keys(map).sort((a,b)=> (map[a].year-map[b].year) || (map[a].month-map[b].month));
-  const el = document.getElementById('month-grid');
-  if (!keys.length) { el.innerHTML='<div class="empty-msg">No data yet.</div>'; return; }
-  const maxP = Math.max(...keys.map(k=>map[k].profit), 1);
-  el.innerHTML = keys.map(k=>{
-    const m = map[k];
-    return `
-    <div class="month-card">
-      <div class="month-top">
-        <div>
-          <div class="month-name">${MONTHS[m.month]} ${m.year}</div>
-          <div class="month-meta">${m.count} transactions</div>
-          ${m.delivery>0?`<div class="month-delivery-meta"><i class="ti ti-truck" style="font-size:11px;vertical-align:-1px"></i> Delivery: ${m.delivery.toFixed(2)}</div>`:''}
-        </div>
-        <div class="month-profit">${m.profit.toFixed(2)}</div>
-      </div>
-      <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(m.profit/maxP*100)}%"></div></div>
-    </div>
-  `;}).join('');
-}
-
-function populateYearFilter() {
-  const sel = document.getElementById('filter-year');
-  const current = sel.value;
-  const years = Array.from(new Set(entries.map(e=>getYear(e.date)).filter(Boolean))).sort((a,b)=>b-a);
-  sel.innerHTML = '<option value="">All Years</option>' + years.map(y=>`<option value="${y}">${y}</option>`).join('');
-  if (years.includes(Number(current))) sel.value = current;
-}
-
-window.renderTable = () => {
-  const filterYY = document.getElementById('filter-year').value;
-  const filterMM = document.getElementById('filter-month').value;
-  const filterType = document.getElementById('filter-type').value;
-  const search = document.getElementById('filter-search').value.toLowerCase();
-  const filtered = entries.filter(e => {
-    if (filterYY && String(getYear(e.date)) !== filterYY) return false;
-    if (filterMM && String(getMonth(e.date)) !== filterMM) return false;
-    if (filterType && e.item !== filterType) return false;
-    if (search && !e.company.toLowerCase().includes(search)) return false;
-    return true;
-  });
-  const tbody = document.getElementById('tbody');
-  if (!filtered.length) { tbody.innerHTML='<tr><td colspan="9" class="empty-msg">No records found.</td></tr>'; return; }
-  tbody.innerHTML = filtered.map(e=>`
-    <tr>
-      <td>${e.date}</td>
-      <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.company}</td>
-      <td>${getBadge(e.item)}</td>
-      <td>${e.qty.toLocaleString()}</td>
-      <td>${e.cost.toFixed(2)}</td>
-      <td>${e.sell.toFixed(2)}</td>
-      <td class="delivery-cell">${e.delivery>0?'− '+e.delivery.toFixed(2):'—'}</td>
-      <td class="profit-cell">${e.profit.toFixed(2)}</td>
-      <td>
-        <button class="btn-del" onclick="editEntry('${e.id}')" title="Edit"><i class="ti ti-edit"></i></button>
-        <button class="btn-del" onclick="deleteEntry('${e.id}')" title="Delete"><i class="ti ti-trash"></i></button>
-      </td>
-    </tr>
-  `).join('');
-};
-
-function updateStats() {
-  const tot = k => entries.reduce((s,e)=>s+e[k], 0);
-  document.getElementById('stat-revenue').textContent = tot('sell').toFixed(2);
-  document.getElementById('stat-cost').textContent = tot('cost').toFixed(2);
-  document.getElementById('stat-delivery').textContent = tot('delivery').toFixed(2);
-  document.getElementById('stat-profit').textContent = tot('profit').toFixed(2);
-  document.getElementById('record-count').textContent = entries.length + ' records';
-}
-
-function renderAll() { populateYearFilter(); renderMonthly(); renderYearly(); window.renderTable(); updateStats(); }
+function renderAll() { updateStats(); window.renderTable(); calculateAnalytics(); }
 </script>
 </body>
 </html>

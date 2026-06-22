@@ -12,6 +12,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   .drive-status { font-size: 12px; color: var(--text-secondary); display:flex; align-items:center; gap:8px; }
   .btn-drive {
@@ -175,7 +177,17 @@
   .btn-del { background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px 7px; border-radius: 6px; font-size: 15px; line-height: 1; }
   .btn-del:hover { color: #A32D2D; background: var(--red-bg); }
 
+  .tabs { display: flex; gap: 6px; margin-bottom: 18px; border-bottom: 0.5px solid var(--border); }
+  .tab-btn { background: none; border: none; padding: 10px 16px; font-size: 14px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; }
+  .tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+  .tab-page { display: none; }
+  .tab-page.active { display: block; }
+  .year-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; padding: 16px; }
+  .year-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 14px 16px; text-align: center; }
+  .year-card .yname { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+  .year-card .yprofit { font-size: 22px; font-weight: 700; color: var(--green); margin-top: 4px; }
   .empty-msg { text-align: center; padding: 2.5rem; color: var(--text-secondary); font-size: 14px; }
+
 
   footer { text-align: center; font-size: 12px; color: var(--text-secondary); padding: 24px; }
 
@@ -223,6 +235,13 @@
 
 <div class="container">
 
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-btn-dashboard" onclick="switchTab('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+    <button class="tab-btn" id="tab-btn-reports" onclick="switchTab('reports')"><i class="ti ti-chart-bar"></i> Reports</button>
+  </div>
+
+  <div class="tab-page active" id="tab-dashboard">
+
   <!-- Stats -->
   <div class="stats-grid">
     <div class="stat"><div class="stat-label">Total Revenue</div><div class="stat-value" id="stat-revenue">0.00</div></div>
@@ -241,13 +260,14 @@
         <div class="field"><label>Date</label><input type="date" id="f-date"></div>
         <div class="field"><label>Company Name</label><input type="text" id="f-company" placeholder="e.g. Blue Mountain LLC"></div>
         <div class="field"><label>Item / Work</label>
-          <select id="f-item">
+          <select id="f-item" onchange="handleItemSelect()">
             <option value="TAX INVOICE">Tax Invoice</option>
             <option value="JOB ORDER">Job Order</option>
             <option value="BUSINESS CARD">Business Card</option>
             <option value="FLYER">Flyer</option>
             <option value="STICKER">Sticker</option>
             <option value="OTHER">Other</option>
+            <option value="__add__">+ Add new item type</option>
           </select>
         </div>
         <div class="field"><label>Qty</label><input type="number" id="f-qty" min="1" placeholder="e.g. 1000"></div>
@@ -263,17 +283,8 @@
         <span class="profit-preview-label"><i class="ti ti-trending-up"></i> Net Profit &nbsp;<span style="font-weight:400;font-size:11px">(Selling − Cost − Delivery)</span></span>
         <span class="profit-preview-val" id="profit-preview">0.00</span>
       </div>
-      <button class="btn-add" onclick="addEntry()"><i class="ti ti-plus"></i> Add Entry</button>
-    </div>
-  </div>
-
-  <!-- Monthly Summary -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title"><i class="ti ti-calendar-stats"></i> Monthly Profit Summary</div>
-    </div>
-    <div class="month-grid" id="month-grid">
-      <div class="empty-msg">No data yet. Add your first entry above.</div>
+      <button class="btn-add" id="btn-add" onclick="addEntry()"><i class="ti ti-plus"></i> Add Entry</button>
+      <button class="btn-add" id="btn-cancel-edit" onclick="cancelEdit()" style="display:none;background:var(--bg-secondary);color:var(--text);border:0.5px solid var(--border-md)"><i class="ti ti-x"></i> Cancel</button>
     </div>
   </div>
 
@@ -282,6 +293,8 @@
     <div class="card-header">
       <div class="card-title"><i class="ti ti-list"></i> All Transactions</div>
       <div class="filter-row">
+        <button class="btn-drive" onclick="document.getElementById('import-file').click()"><i class="ti ti-file-import"></i> Import Excel/CSV</button>
+        <input type="file" id="import-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFile(event)">
         <select id="filter-year" onchange="renderTable()">
           <option value="">All Years</option>
         </select>
@@ -296,8 +309,6 @@
         </select>
         <select id="filter-type" onchange="renderTable()">
           <option value="">All Types</option>
-          <option>TAX INVOICE</option><option>JOB ORDER</option>
-          <option>BUSINESS CARD</option><option>FLYER</option><option>STICKER</option><option>OTHER</option>
         </select>
         <input type="text" id="filter-search" placeholder="Search company..." oninput="renderTable()" style="width:160px">
       </div>
@@ -315,6 +326,42 @@
     </div>
   </div>
 
+  </div>
+
+  <div class="tab-page" id="tab-reports">
+
+  <!-- Yearly Summary -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="ti ti-calendar"></i> Yearly Profit Summary</div>
+    </div>
+    <div class="year-grid" id="year-grid">
+      <div class="empty-msg">No data yet.</div>
+    </div>
+  </div>
+
+  <!-- Profit Trend Chart -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="ti ti-chart-line"></i> Profit Trend</div>
+    </div>
+    <div class="card-body">
+      <canvas id="profit-chart" height="110"></canvas>
+    </div>
+  </div>
+
+  <!-- Monthly Summary -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="ti ti-calendar-stats"></i> Monthly Profit Summary</div>
+    </div>
+    <div class="month-grid" id="month-grid">
+      <div class="empty-msg">No data yet. Add your first entry above.</div>
+    </div>
+  </div>
+
+  </div>
+
 </div>
 
 <footer>Commercial Printing & Trading Log &mdash; Personal Use</footer>
@@ -322,10 +369,53 @@
 <script>
 const MONTHS = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 const ITEMS = {'TAX INVOICE':'invoice','JOB ORDER':'job','BUSINESS CARD':'card','FLYER':'flyer','STICKER':'sticker','OTHER':'other'};
+const CUSTOM_ITEMS_KEY = 'cptl_custom_items';
+let customItems = [];
+
+function loadCustomItems() {
+  try { customItems = JSON.parse(localStorage.getItem(CUSTOM_ITEMS_KEY) || '[]'); } catch(e) { customItems = []; }
+  const sel = document.getElementById('f-item');
+  const addOpt = sel.querySelector('option[value="__add__"]');
+  customItems.forEach(name => {
+    if (!sel.querySelector(`option[value="${name}"]`)) {
+      const opt = document.createElement('option');
+      opt.value = name; opt.textContent = name;
+      sel.insertBefore(opt, addOpt);
+    }
+  });
+}
+
+function handleItemSelect() {
+  const sel = document.getElementById('f-item');
+  if (sel.value !== '__add__') return;
+  const name = (prompt('പുതിയ item type-ന്റെ പേര് എഴുതൂ:')||'').trim().toUpperCase();
+  const addOpt = sel.querySelector('option[value="__add__"]');
+  if (!name) { sel.value = 'OTHER'; return; }
+  if (!customItems.includes(name)) {
+    customItems.push(name);
+    localStorage.setItem(CUSTOM_ITEMS_KEY, JSON.stringify(customItems));
+  }
+  if (!sel.querySelector(`option[value="${name}"]`)) {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    sel.insertBefore(opt, addOpt);
+  }
+  sel.value = name;
+  populateItemFilter();
+}
+
+function populateItemFilter() {
+  const sel = document.getElementById('filter-type');
+  const current = sel.value;
+  const allTypes = ['TAX INVOICE','JOB ORDER','BUSINESS CARD','FLYER','STICKER','OTHER', ...customItems];
+  sel.innerHTML = '<option value="">All Types</option>' + allTypes.map(t=>`<option value="${t}">${t}</option>`).join('');
+  if (allTypes.includes(current)) sel.value = current;
+}
 const STORE_KEY = 'cptl_entries';
 
 let entries = [];
 let nextId = 1;
+let editingId = null;
 
 /* ===================== GOOGLE DRIVE SYNC =====================
    1. Go to https://console.cloud.google.com/ -> create a project
@@ -449,7 +539,14 @@ function driveAutoSave() {
   }, 600); // debounce so rapid edits don't spam the API
 }
 
-window.addEventListener('load', initGoogle);
+window.addEventListener('load', () => {
+  initGoogle();
+  setTimeout(() => {
+    if (tokenClient && !accessToken) {
+      tokenClient.requestAccessToken({ prompt: '' });
+    }
+  }, 600);
+});
 /* =============================================================== */
 
 function load() {
@@ -492,6 +589,57 @@ function save() {
 function getMonth(date) { return parseInt((date||'').split('-')[1]||0); }
 function getYear(date) { return parseInt((date||'').split('-')[0]||0); }
 
+function switchTab(name) {
+  document.getElementById('tab-dashboard').classList.toggle('active', name==='dashboard');
+  document.getElementById('tab-reports').classList.toggle('active', name==='reports');
+  document.getElementById('tab-btn-dashboard').classList.toggle('active', name==='dashboard');
+  document.getElementById('tab-btn-reports').classList.toggle('active', name==='reports');
+  if (name === 'reports') renderChart();
+}
+
+let profitChart = null;
+function renderChart() {
+  const map = {};
+  entries.forEach(e => {
+    const mm = getMonth(e.date), yy = getYear(e.date);
+    if (!mm || !yy) return;
+    const key = yy + '-' + String(mm).padStart(2,'0');
+    map[key] = (map[key]||0) + e.profit;
+  });
+  const keys = Object.keys(map).sort();
+  const labels = keys.map(k => { const [y,m]=k.split('-'); return MONTHS[parseInt(m)].slice(0,3) + ' ' + y; });
+  const data = keys.map(k => map[k]);
+  const ctx = document.getElementById('profit-chart');
+  if (!ctx) return;
+  if (profitChart) profitChart.destroy();
+  profitChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{ label: 'Net Profit', data, borderColor: '#1D9E75', backgroundColor: 'rgba(29,158,117,0.15)', fill: true, tension: 0.3 }] },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+}
+
+function renderYearly() {
+  const map = {};
+  entries.forEach(e => {
+    const yy = getYear(e.date);
+    if (!yy) return;
+    if (!map[yy]) map[yy] = {profit:0, count:0};
+    map[yy].profit += e.profit;
+    map[yy].count++;
+  });
+  const years = Object.keys(map).sort((a,b)=>b-a);
+  const el = document.getElementById('year-grid');
+  if (!years.length) { el.innerHTML = '<div class="empty-msg">No data yet.</div>'; return; }
+  el.innerHTML = years.map(y => `
+    <div class="year-card">
+      <div class="yname">${y}</div>
+      <div class="yprofit">${map[y].profit.toFixed(2)}</div>
+      <div class="month-meta">${map[y].count} transactions</div>
+    </div>
+  `).join('');
+}
+
 function calcProfit() {
   const sell = parseFloat(document.getElementById('f-sell').value)||0;
   const cost = parseFloat(document.getElementById('f-cost').value)||0;
@@ -503,6 +651,77 @@ function calcProfit() {
   document.getElementById(id).addEventListener('input', calcProfit);
 });
 
+function excelDateToYMD(serial) {
+  const d = new Date(Math.round((serial - 25569) * 86400 * 1000));
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function parseDateValue(v) {
+  if (v === null || v === undefined || v === '') return '';
+  if (typeof v === 'number') return excelDateToYMD(v);
+  const s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (m) {
+    let [_, a, b, y] = m;
+    if (y.length === 2) y = '20'+y;
+    return `${y}-${String(a).padStart(2,'0')}-${String(b).padStart(2,'0')}`;
+  }
+  const d = new Date(s);
+  if (!isNaN(d)) return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  return '';
+}
+
+function findField(row, names) {
+  const keys = Object.keys(row);
+  for (const n of names) {
+    const k = keys.find(k => k.toLowerCase().replace(/[^a-z0-9]/g,'') === n.toLowerCase().replace(/[^a-z0-9]/g,''));
+    if (k !== undefined) return row[k];
+  }
+  return undefined;
+}
+
+function handleImportFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array', cellDates: false });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+      let imported = 0, skipped = 0;
+      rows.forEach(row => {
+        const dateRaw = findField(row, ['date']);
+        const company = findField(row, ['company','companyname','customer','client']);
+        let item = findField(row, ['item','itemwork','itemtype','work','description']);
+        const qty = parseFloat(findField(row, ['qty','quantity'])) || 0;
+        const cost = parseFloat(findField(row, ['cost','costamount'])) || 0;
+        const sell = parseFloat(findField(row, ['sell','selling','sellingamount','amount','price'])) || 0;
+        const delivery = parseFloat(findField(row, ['delivery','deliverycharge'])) || 0;
+        const date = parseDateValue(dateRaw);
+        if (!date || !company || !sell) { skipped++; return; }
+        item = (item ? String(item).trim().toUpperCase() : 'OTHER');
+        if (!ITEMS[item] && !customItems.includes(item)) {
+          customItems.push(item);
+          localStorage.setItem(CUSTOM_ITEMS_KEY, JSON.stringify(customItems));
+        }
+        entries.push({ id: nextId++, date, company: String(company).trim().toUpperCase(), item, qty, cost, sell, delivery, profit: sell-cost-delivery });
+        imported++;
+      });
+      save();
+      loadCustomItems();
+      renderAll();
+      alert(`Import complete: ${imported} entries added${skipped?`, ${skipped} skipped (missing date/company/selling amount)`:''}.`);
+    } catch (err) {
+      console.error(err);
+      alert('File read ചെയ്യാൻ പറ്റിയില്ല. .xlsx, .xls, അല്ലെങ്കിൽ .csv file ആണെന്ന് ഉറപ്പാക്കൂ.');
+    }
+    event.target.value = '';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
 function addEntry() {
   const date = document.getElementById('f-date').value;
   const company = document.getElementById('f-company').value.trim();
@@ -512,11 +731,44 @@ function addEntry() {
   const sell = parseFloat(document.getElementById('f-sell').value)||0;
   const delivery = parseFloat(document.getElementById('f-delivery').value)||0;
   if (!date || !company || !sell) { alert('Date, Company, and Selling Amount are required.'); return; }
-  entries.push({id:nextId++, date, company:company.toUpperCase(), item, qty, cost, sell, delivery, profit: sell-cost-delivery});
+  if (editingId) {
+    const idx = entries.findIndex(e => e.id === editingId);
+    if (idx > -1) entries[idx] = {id: editingId, date, company: company.toUpperCase(), item, qty, cost, sell, delivery, profit: sell-cost-delivery};
+    cancelEdit();
+  } else {
+    entries.push({id:nextId++, date, company:company.toUpperCase(), item, qty, cost, sell, delivery, profit: sell-cost-delivery});
+  }
   save();
   ['f-date','f-company','f-qty','f-cost','f-sell','f-delivery'].forEach(id => { document.getElementById(id).value=''; });
   document.getElementById('profit-preview').textContent = '0.00';
   renderAll();
+}
+
+function editEntry(id) {
+  const e = entries.find(x => x.id === id);
+  if (!e) return;
+  editingId = id;
+  document.getElementById('f-date').value = e.date;
+  document.getElementById('f-company').value = e.company;
+  document.getElementById('f-item').value = e.item;
+  document.getElementById('f-qty').value = e.qty;
+  document.getElementById('f-cost').value = e.cost;
+  document.getElementById('f-sell').value = e.sell;
+  document.getElementById('f-delivery').value = e.delivery;
+  calcProfit();
+  const btn = document.getElementById('btn-add');
+  btn.innerHTML = '<i class="ti ti-check"></i> Update Entry';
+  document.getElementById('btn-cancel-edit').style.display = 'inline-flex';
+  document.querySelector('.card').scrollIntoView({behavior:'smooth'});
+}
+
+function cancelEdit() {
+  editingId = null;
+  const btn = document.getElementById('btn-add');
+  btn.innerHTML = '<i class="ti ti-plus"></i> Add Entry';
+  document.getElementById('btn-cancel-edit').style.display = 'none';
+  ['f-date','f-company','f-qty','f-cost','f-sell','f-delivery'].forEach(id => { document.getElementById(id).value=''; });
+  document.getElementById('profit-preview').textContent = '0.00';
 }
 
 function deleteEntry(id) {
@@ -596,7 +848,10 @@ function renderTable() {
       <td>${e.sell.toFixed(2)}</td>
       <td class="delivery-cell">${e.delivery>0?'− '+e.delivery.toFixed(2):'—'}</td>
       <td class="profit-cell">${e.profit.toFixed(2)}</td>
-      <td><button class="btn-del" onclick="deleteEntry(${e.id})" title="Delete"><i class="ti ti-trash"></i></button></td>
+      <td>
+        <button class="btn-del" onclick="editEntry(${e.id})" title="Edit"><i class="ti ti-edit"></i></button>
+        <button class="btn-del" onclick="deleteEntry(${e.id})" title="Delete"><i class="ti ti-trash"></i></button>
+      </td>
     </tr>
   `).join('');
 }
@@ -610,9 +865,10 @@ function updateStats() {
   document.getElementById('record-count').textContent = entries.length + ' records';
 }
 
-function renderAll() { populateYearFilter(); renderMonthly(); renderTable(); updateStats(); }
+function renderAll() { populateYearFilter(); populateItemFilter(); renderMonthly(); renderYearly(); renderTable(); updateStats(); }
 
 load();
+loadCustomItems();
 renderAll();
 
 if ('serviceWorker' in navigator) {
@@ -624,40 +880,3 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
-
-{
-  "name": "Printing & Trading Log",
-  "short_name": "Trading Log",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#eeede9",
-  "theme_color": "#1D9E75",
-  "orientation": "portrait",
-  "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
-  ]
-}
-
-const CACHE_NAME = 'cptl-cache-v1';
-const FILES_TO_CACHE = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png'];
-
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(FILES_TO_CACHE))
-  );
-});
-
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((res) => res || fetch(e.request))
-  );
-});
-
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
-  );
-});

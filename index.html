@@ -539,14 +539,7 @@ function driveAutoSave() {
   }, 600); // debounce so rapid edits don't spam the API
 }
 
-window.addEventListener('load', () => {
-  initGoogle();
-  setTimeout(() => {
-    if (tokenClient && !accessToken) {
-      tokenClient.requestAccessToken({ prompt: '' });
-    }
-  }, 600);
-});
+window.addEventListener('load', initGoogle);
 /* =============================================================== */
 
 function load() {

@@ -3,15 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1D9E75">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Commercial Printing & Trading Log</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
@@ -185,25 +178,21 @@
   .year-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; padding: 16px; }
   .year-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 14px 16px; text-align: center; }
   .year-card .yname { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
-  .login-overlay {
-    position: fixed; inset: 0; background: var(--bg-tertiary); z-index: 100;
-    display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 18px; text-align: center; padding: 24px;
-  }
-  .login-overlay i.ti-printer { font-size: 44px; color: var(--green); }
-  .login-overlay h1 { font-size: 18px; font-weight: 600; color: var(--text); }
-  .login-overlay p { font-size: 13px; color: var(--text-secondary); max-width: 320px; }
-  .btn-login {
-    background: var(--green); color: #fff; border: none; border-radius: var(--radius-md);
-    padding: 12px 26px; font-size: 14px; font-weight: 600; cursor: pointer;
-    display: inline-flex; align-items: center; gap: 8px;
-  }
-  .btn-login:hover { background: var(--green-dark); }
-  .login-overlay.hidden { display: none; }
-  #app-content { display: none; }
-  #app-content.visible { display: block; }
   .year-card .yprofit { font-size: 22px; font-weight: 700; color: var(--green); margin-top: 4px; }
   .empty-msg { text-align: center; padding: 2.5rem; color: var(--text-secondary); font-size: 14px; }
 
+  /* Auth Screen Styling */
+  .auth-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg-tertiary); padding: 20px; }
+  .auth-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 32px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+  .auth-icon { font-size: 48px; color: var(--green); margin-bottom: 16px; }
+  .auth-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .auth-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; }
+  .btn-login { background: var(--green); color: #fff; border: none; border-radius: var(--radius-md); padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+  .btn-login:hover { background: var(--green-dark); }
+  .btn-logout { background: none; border: 0.5px solid var(--border-md); color: var(--text-secondary); padding: 6px 12px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-logout:hover { background: var(--bg-secondary); color: var(--text); }
+  
+  .hidden { display: none !important; }
 
   footer { text-align: center; font-size: 12px; color: var(--text-secondary); padding: 24px; }
 
@@ -236,14 +225,16 @@
 </head>
 <body>
 
-<div class="login-overlay" id="login-overlay">
-  <i class="ti ti-printer"></i>
-  <h1>Commercial Printing & Trading Log</h1>
-  <p>തുടരാൻ നിങ്ങളുടെ Google account sign in ചെയ്യൂ. ഡാറ്റ നിങ്ങളുടെ Google Drive-ൽ ആയിരിക്കും save ആകുന്നത്.</p>
-  <button class="btn-login" id="login-btn" onclick="driveSignIn()"><i class="ti ti-brand-google"></i> Sign in with Google</button>
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-icon"><i class="ti ti-printer"></i></div>
+    <div class="auth-title">Sales & Profit Tracker</div>
+    <div class="auth-desc">Please sign in with your Google account to access your personal dashboard.</div>
+    <button class="btn-login" onclick="loginWithGoogle()"><i class="ti ti-brand-google"></i> Sign in with Google</button>
+  </div>
 </div>
 
-<div id="app-content">
+<div id="app-content" class="hidden">
 
 <div class="topbar">
   <div>
@@ -251,7 +242,8 @@
     <div class="topbar-sub">Personal sales & profit tracker</div>
   </div>
   <div class="drive-status">
-    <span class="dot ok" id="drive-dot"></span> <span id="drive-label">Synced to Drive</span>
+    <span id="user-display" style="font-weight:600; color:var(--text);"></span>
+    <button class="btn-logout" onclick="logoutFirebase()"><i class="ti ti-logout"></i> Logout</button>
     <span id="record-count">0 records</span>
   </div>
 </div>
@@ -265,7 +257,6 @@
 
   <div class="tab-page active" id="tab-dashboard">
 
-  <!-- Stats -->
   <div class="stats-grid">
     <div class="stat"><div class="stat-label">Total Revenue</div><div class="stat-value" id="stat-revenue">0.00</div></div>
     <div class="stat"><div class="stat-label">Total Cost</div><div class="stat-value" id="stat-cost">0.00</div></div>
@@ -273,7 +264,6 @@
     <div class="stat"><div class="stat-label">Cumulative Profit</div><div class="stat-value green" id="stat-profit">0.00</div></div>
   </div>
 
-  <!-- Add Entry -->
   <div class="card">
     <div class="card-header">
       <div class="card-title"><i class="ti ti-circle-plus"></i> New Entry</div>
@@ -311,7 +301,6 @@
     </div>
   </div>
 
-  <!-- Transactions -->
   <div class="card">
     <div class="card-header">
       <div class="card-title"><i class="ti ti-list"></i> All Transactions</div>
@@ -353,7 +342,6 @@
 
   <div class="tab-page" id="tab-reports">
 
-  <!-- Yearly Summary -->
   <div class="card">
     <div class="card-header">
       <div class="card-title"><i class="ti ti-calendar"></i> Yearly Profit Summary</div>
@@ -363,7 +351,6 @@
     </div>
   </div>
 
-  <!-- Profit Trend Chart -->
   <div class="card">
     <div class="card-header">
       <div class="card-title"><i class="ti ti-chart-line"></i> Profit Trend</div>
@@ -373,7 +360,6 @@
     </div>
   </div>
 
-  <!-- Monthly Summary -->
   <div class="card">
     <div class="card-header">
       <div class="card-title"><i class="ti ti-calendar-stats"></i> Monthly Profit Summary</div>
@@ -391,13 +377,77 @@
 
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// ⚠️ നിങ്ങളുടെ സ്വന്തം ഫയർബേസ് കോൺഫിഗറേഷൻ വിജയകരമായി ഇവിടെ ആഡ് ചെയ്തിരിക്കുന്നു
+const firebaseConfig = {
+  apiKey: "AIzaSyBBpofukhr90oqarAQ9qnep6T2l_Ds10sY",
+  authDomain: "sales-tracker-3907c.firebaseapp.com",
+  projectId: "sales-tracker-3907c",
+  storageBucket: "sales-tracker-3907c.firebasestorage.app",
+  messagingSenderId: "999347491349",
+  appId: "1:999347491349:web:303716c0b6b3a0194a741c",
+  measurementId: "G-4MJ9HHMDHB"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
 const MONTHS = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 const ITEMS = {'TAX INVOICE':'invoice','JOB ORDER':'job','BUSINESS CARD':'card','FLYER':'flyer','STICKER':'sticker','OTHER':'other'};
 const CUSTOM_ITEMS_KEY = 'cptl_custom_items';
 let customItems = [];
+let entries = [];
+let editingId = null;
+let currentUser = null;
 
-function loadCustomItems() {
+// Auth Functions attached to window for HTML onClick triggers
+window.loginWithGoogle = () => {
+  signInWithPopup(auth, provider).catch(error => alert("ലോഗിൻ ചെയ്യാൻ പറ്റിയില്ല: " + error.message));
+};
+
+window.logoutFirebase = () => {
+  signOut(auth).catch(error => console.error("Error signing out: ", error));
+};
+
+// Listen for Auth Changes
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('user-display').textContent = user.displayName;
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('app-content').classList.remove('hidden');
+    loadCustomItems();
+    listenToDatabase();
+  } else {
+    currentUser = null;
+    document.getElementById('auth-screen').classList.remove('hidden');
+    document.getElementById('app-content').classList.add('hidden');
+    entries = [];
+  }
+});
+
+function listenToDatabase() {
+  if (!currentUser) return;
+  // Realtime updates directly sync with user ID bucket
+  onSnapshot(collection(db, "users", currentUser.uid, "entries"), (snapshot) => {
+    entries = [];
+    snapshot.forEach((doc) => {
+      entries.push({ id: doc.id, ...doc.data() });
+    });
+    // Sort transactions by date descending
+    entries.sort((a,b) => new Date(b.date) - new Date(a.date));
+    renderAll();
+  });
+}
+
+window.loadCustomItems = () => {
   try { customItems = JSON.parse(localStorage.getItem(CUSTOM_ITEMS_KEY) || '[]'); } catch(e) { customItems = []; }
   const sel = document.getElementById('f-item');
   const addOpt = sel.querySelector('option[value="__add__"]');
@@ -408,9 +458,10 @@ function loadCustomItems() {
       sel.insertBefore(opt, addOpt);
     }
   });
-}
+  window.populateItemFilter();
+};
 
-function handleItemSelect() {
+window.handleItemSelect = () => {
   const sel = document.getElementById('f-item');
   if (sel.value !== '__add__') return;
   const name = (prompt('പുതിയ item type-ന്റെ പേര് എഴുതൂ:')||'').trim().toUpperCase();
@@ -426,224 +477,27 @@ function handleItemSelect() {
     sel.insertBefore(opt, addOpt);
   }
   sel.value = name;
-  populateItemFilter();
-}
+  window.populateItemFilter();
+};
 
-function populateItemFilter() {
+window.populateItemFilter = () => {
   const sel = document.getElementById('filter-type');
   const current = sel.value;
   const allTypes = ['TAX INVOICE','JOB ORDER','BUSINESS CARD','FLYER','STICKER','OTHER', ...customItems];
   sel.innerHTML = '<option value="">All Types</option>' + allTypes.map(t=>`<option value="${t}">${t}</option>`).join('');
   if (allTypes.includes(current)) sel.value = current;
-}
-const STORE_KEY = 'cptl_entries';
-
-let entries = [];
-let nextId = 1;
-let editingId = null;
-
-/* ===================== GOOGLE DRIVE SYNC =====================
-   1. Go to https://console.cloud.google.com/ -> create a project
-   2. Enable "Google Drive API" (APIs & Services -> Library)
-   3. Go to APIs & Services -> Credentials -> Create Credentials -> OAuth Client ID
-      - Application type: Web application
-      - Authorized JavaScript origins: add your GitHub Pages URL
-        e.g. https://yourusername.github.io
-   4. Paste the Client ID below in CLIENT_ID.
-   5. OAuth consent screen: add yourself as a Test User (if app is in "Testing" mode).
-   ============================================================== */
-const CLIENT_ID = '7292218906-a0klq73ki7dec8l2h1pq38j19fjml4ub.apps.googleusercontent.com';
-const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
-const DRIVE_FILENAME = 'printing_trading_log_data.json';
-
-let tokenClient = null;
-let accessToken = null;
-let driveFileId = null;
-let driveReady = false;
-
-function setDriveUI(state) {
-  const dot = document.getElementById('drive-dot');
-  const label = document.getElementById('drive-label');
-  if (state === 'connected') {
-    dot.className = 'dot ok'; label.textContent = 'Synced to Drive';
-  } else if (state === 'busy') {
-    dot.className = 'dot busy'; label.textContent = 'Syncing...';
-  } else {
-    dot.className = 'dot'; label.textContent = 'Not connected';
-  }
-}
-
-function showApp() {
-  document.getElementById('login-overlay').classList.add('hidden');
-  document.getElementById('app-content').classList.add('visible');
-}
-
-const TOKEN_CACHE_KEY = 'cptl_drive_token';
-
-function cacheToken(token, expiresInSec) {
-  const expiry = Date.now() + (expiresInSec * 1000) - 60000;
-  localStorage.setItem(TOKEN_CACHE_KEY, JSON.stringify({ token, expiry }));
-}
-
-function getCachedToken() {
-  try {
-    const data = JSON.parse(localStorage.getItem(TOKEN_CACHE_KEY) || 'null');
-    if (data && data.expiry > Date.now()) return data.token;
-  } catch(e) {}
-  return null;
-}
-
-function initGoogle() {
-  if (!window.google || CLIENT_ID.indexOf('PASTE_YOUR') === 0) return;
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: DRIVE_SCOPE,
-    callback: async (resp) => {
-      if (resp.error) { console.error(resp); return; }
-      accessToken = resp.access_token;
-      cacheToken(accessToken, resp.expires_in || 3500);
-      setDriveUI('busy');
-      await driveLoadOrCreate();
-      setDriveUI('connected');
-      showApp();
-    }
-  });
-
-  const cached = getCachedToken();
-  if (cached) {
-    accessToken = cached;
-    setDriveUI('busy');
-    driveLoadOrCreate().then(() => { setDriveUI('connected'); showApp(); })
-      .catch(() => { localStorage.removeItem(TOKEN_CACHE_KEY); accessToken = null; });
-  }
-}
-
-function driveSignIn() {
-  if (CLIENT_ID.indexOf('PASTE_YOUR') === 0) {
-    alert('Google Drive ഉപയോഗിക്കാൻ ആദ്യം CLIENT_ID code-ൽ paste ചെയ്യണം. Comment-ൽ steps കൊടുത്തിട്ടുണ്ട്.');
-    return;
-  }
-  if (!tokenClient) initGoogle();
-  if (!tokenClient) { alert('Google API load ആയിട്ടില്ല, ഒരു സെക്കൻഡ് കഴിഞ്ഞ് try ചെയ്യൂ.'); return; }
-  tokenClient.requestAccessToken({ prompt: accessToken ? '' : 'consent' });
-}
-
-async function driveFindFile() {
-  const q = encodeURIComponent(`name='${DRIVE_FILENAME}' and trashed=false`);
-  const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive&fields=files(id,name)`, {
-    headers: { Authorization: 'Bearer ' + accessToken }
-  });
-  if (res.status === 401) { localStorage.removeItem(TOKEN_CACHE_KEY); throw new Error('token expired'); }
-  const data = await res.json();
-  return (data.files && data.files[0]) ? data.files[0].id : null;
-}
-
-async function driveLoadOrCreate() {
-  driveFileId = await driveFindFile();
-  if (driveFileId) {
-    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`, {
-      headers: { Authorization: 'Bearer ' + accessToken }
-    });
-    const data = await res.json();
-    entries = data.entries || [];
-    nextId = data.nextId || 1;
-  } else {
-    // create new file with current (local) data
-    await driveSaveFile();
-  }
-  driveReady = true;
-  save(); // mirror into localStorage as cache
-  renderAll();
-}
-
-async function driveSaveFile() {
-  const metadata = { name: DRIVE_FILENAME, mimeType: 'application/json' };
-  const boundary = '-------cptl_boundary';
-  const body =
-    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
-    `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify({entries, nextId})}\r\n` +
-    `--${boundary}--`;
-
-  if (driveFileId) {
-    const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=multipart`, {
-      method: 'PATCH',
-      headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': `multipart/related; boundary=${boundary}` },
-      body
-    });
-    return res.json();
-  } else {
-    const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': `multipart/related; boundary=${boundary}` },
-      body
-    });
-    const data = await res.json();
-    driveFileId = data.id;
-    return data;
-  }
-}
-
-let driveSaveTimer = null;
-function driveAutoSave() {
-  if (!accessToken) return; // not signed in -> localStorage only
-  setDriveUI('busy');
-  clearTimeout(driveSaveTimer);
-  driveSaveTimer = setTimeout(async () => {
-    try { await driveSaveFile(); setDriveUI('connected'); }
-    catch(e) { console.error(e); setDriveUI('connected'); }
-  }, 600); // debounce so rapid edits don't spam the API
-}
-
-window.addEventListener('load', initGoogle);
-/* =============================================================== */
-
-function load() {
-  try {
-    const saved = localStorage.getItem(STORE_KEY);
-    if (saved) {
-      const data = JSON.parse(saved);
-      entries = data.entries || [];
-      nextId = data.nextId || (entries.length ? Math.max(...entries.map(e=>e.id))+1 : 1);
-    } else {
-      entries = [
-        {id:1,date:'2025-01-03',company:'BLUE MOUNTAIN TAILORING LLC',item:'JOB ORDER',qty:25,cost:183.75,sell:250.00,delivery:0,profit:66.25},
-        {id:2,date:'2025-01-04',company:'FADANO FURNITURE',item:'TAX INVOICE',qty:20,cost:130.00,sell:210.00,delivery:0,profit:80.00},
-        {id:3,date:'2025-01-04',company:'FADANO FURNITURE',item:'JOB ORDER',qty:10,cost:90.00,sell:180.00,delivery:0,profit:90.00},
-        {id:4,date:'2025-01-04',company:'FADANO FURNITURE',item:'BUSINESS CARD',qty:1000,cost:26.25,sell:80.00,delivery:0,profit:53.75},
-        {id:5,date:'2025-01-07',company:'BAIT AL AMANAH READYMADE',item:'TAX INVOICE',qty:50,cost:157.50,sell:250.00,delivery:0,profit:92.50},
-        {id:6,date:'2025-01-12',company:'ABID COPY',item:'BUSINESS CARD',qty:1000,cost:26.25,sell:80.00,delivery:0,profit:53.75},
-        {id:7,date:'2025-01-12',company:'BLUE MOUNTAIN TAILORING LLC',item:'BUSINESS CARD',qty:1000,cost:124.00,sell:260.00,delivery:0,profit:136.00},
-        {id:8,date:'2025-01-24',company:'ZAHRAT AL MARJAN TR',item:'BUSINESS CARD',qty:1000,cost:26.25,sell:80.00,delivery:0,profit:53.75},
-        {id:9,date:'2025-02-01',company:'NOOR SHALIMAR READYMADE GAR. & ABBAYAT',item:'TAX INVOICE',qty:50,cost:157.50,sell:250.00,delivery:0,profit:92.50},
-        {id:10,date:'2025-02-06',company:'SALEM BELOBAIDA TRADING L.L.C -REPRINT',item:'TAX INVOICE',qty:20,cost:73.50,sell:160.00,delivery:0,profit:86.50},
-        {id:11,date:'2025-02-09',company:'BURJ AL SAJJAH',item:'STICKER',qty:4,cost:55.00,sell:160.00,delivery:0,profit:105.00},
-        {id:12,date:'2025-02-10',company:'RUKN AL MABROOK',item:'FLYER',qty:2000,cost:223.00,sell:500.00,delivery:0,profit:277.00},
-        {id:13,date:'2025-02-10',company:'SIRAJUL HUDA MADRASA',item:'FLYER',qty:1000,cost:141.00,sell:300.00,delivery:0,profit:159.00},
-        {id:14,date:'2025-02-13',company:'AL MUNTADA ABAYA',item:'BUSINESS CARD',qty:1000,cost:26.25,sell:80.00,delivery:0,profit:53.75},
-        {id:15,date:'2025-02-13',company:'ABAQ AL RAIHAN',item:'BUSINESS CARD',qty:1000,cost:26.25,sell:75.00,delivery:0,profit:48.75},
-        {id:16,date:'2025-02-13',company:'AL KAYED READYMADE',item:'TAX INVOICE',qty:10,cost:73.50,sell:110.00,delivery:0,profit:36.50},
-      ];
-      nextId = 17;
-      save();
-    }
-  } catch(e) { entries = []; nextId = 1; }
-}
-
-function save() {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify({entries, nextId})); } catch(e) {}
-  driveAutoSave();
-}
+};
 
 function getMonth(date) { return parseInt((date||'').split('-')[1]||0); }
 function getYear(date) { return parseInt((date||'').split('-')[0]||0); }
 
-function switchTab(name) {
+window.switchTab = (name) => {
   document.getElementById('tab-dashboard').classList.toggle('active', name==='dashboard');
   document.getElementById('tab-reports').classList.toggle('active', name==='reports');
   document.getElementById('tab-btn-dashboard').classList.toggle('active', name==='dashboard');
   document.getElementById('tab-btn-reports').classList.toggle('active', name==='reports');
   if (name === 'reports') renderChart();
-}
+};
 
 let profitChart = null;
 function renderChart() {
@@ -688,15 +542,15 @@ function renderYearly() {
   `).join('');
 }
 
-function calcProfit() {
+window.calcProfit = () => {
   const sell = parseFloat(document.getElementById('f-sell').value)||0;
   const cost = parseFloat(document.getElementById('f-cost').value)||0;
   const delivery = parseFloat(document.getElementById('f-delivery').value)||0;
   document.getElementById('profit-preview').textContent = (sell - cost - delivery).toFixed(2);
-}
+};
 
 ['f-sell','f-cost','f-delivery'].forEach(id => {
-  document.getElementById(id).addEventListener('input', calcProfit);
+  document.getElementById(id).addEventListener('input', window.calcProfit);
 });
 
 function excelDateToYMD(serial) {
@@ -729,17 +583,18 @@ function findField(row, names) {
   return undefined;
 }
 
-function handleImportFile(event) {
+window.handleImportFile = (event) => {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     try {
       const wb = XLSX.read(e.target.result, { type: 'array', cellDates: false });
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
       let imported = 0, skipped = 0;
-      rows.forEach(row => {
+      
+      for (const row of rows) {
         const dateRaw = findField(row, ['date']);
         const company = findField(row, ['company','companyname','customer','client']);
         let item = findField(row, ['item','itemwork','itemtype','work','description']);
@@ -748,29 +603,36 @@ function handleImportFile(event) {
         const sell = parseFloat(findField(row, ['sell','selling','sellingamount','amount','price'])) || 0;
         const delivery = parseFloat(findField(row, ['delivery','deliverycharge'])) || 0;
         const date = parseDateValue(dateRaw);
-        if (!date || !company || !sell) { skipped++; return; }
+        if (!date || !company || !sell) { skipped++; continue; }
         item = (item ? String(item).trim().toUpperCase() : 'OTHER');
         if (!ITEMS[item] && !customItems.includes(item)) {
           customItems.push(item);
           localStorage.setItem(CUSTOM_ITEMS_KEY, JSON.stringify(customItems));
         }
-        entries.push({ id: nextId++, date, company: String(company).trim().toUpperCase(), item, qty, cost, sell, delivery, profit: sell-cost-delivery });
+        
+        const docId = "id_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+        await setDoc(docDocRef(docId), {
+          date, company: String(company).trim().toUpperCase(), item, qty, cost, sell, delivery, profit: sell-cost-delivery
+        });
         imported++;
-      });
-      save();
-      loadCustomItems();
-      renderAll();
-      alert(`Import complete: ${imported} entries added${skipped?`, ${skipped} skipped (missing date/company/selling amount)`:''}.`);
+      }
+      window.loadCustomItems();
+      alert(`Import complete: ${imported} entries added${skipped?`, ${skipped} skipped.`:''}`);
     } catch (err) {
       console.error(err);
-      alert('File read ചെയ്യാൻ പറ്റിയില്ല. .xlsx, .xls, അല്ലെങ്കിൽ .csv file ആണെന്ന് ഉറപ്പാക്കൂ.');
+      alert('File read ചെയ്യാൻ പറ്റിയില്ല.');
     }
     event.target.value = '';
   };
   reader.readAsArrayBuffer(file);
+};
+
+// Helper to get doc reference path easily
+function docDocRef(id) {
+  return doc(db, "users", currentUser.uid, "entries", id);
 }
 
-function addEntry() {
+window.addEntry = async () => {
   const date = document.getElementById('f-date').value;
   const company = document.getElementById('f-company').value.trim();
   const item = document.getElementById('f-item').value;
@@ -779,20 +641,22 @@ function addEntry() {
   const sell = parseFloat(document.getElementById('f-sell').value)||0;
   const delivery = parseFloat(document.getElementById('f-delivery').value)||0;
   if (!date || !company || !sell) { alert('Date, Company, and Selling Amount are required.'); return; }
-  if (editingId) {
-    const idx = entries.findIndex(e => e.id === editingId);
-    if (idx > -1) entries[idx] = {id: editingId, date, company: company.toUpperCase(), item, qty, cost, sell, delivery, profit: sell-cost-delivery};
-    cancelEdit();
-  } else {
-    entries.push({id:nextId++, date, company:company.toUpperCase(), item, qty, cost, sell, delivery, profit: sell-cost-delivery});
+  
+  const targetId = editingId ? editingId : "id_" + Date.now();
+  
+  try {
+    await setDoc(docDocRef(targetId), {
+      date, company: company.toUpperCase(), item, qty, cost, sell, delivery, profit: sell-cost-delivery
+    });
+    if (editingId) window.cancelEdit();
+    ['f-date','f-company','f-qty','f-cost','f-sell','f-delivery'].forEach(id => { document.getElementById(id).value=''; });
+    document.getElementById('profit-preview').textContent = '0.00';
+  } catch(e) {
+    alert("ഡാറ്റ സേവ് ചെയ്യാൻ കഴിഞ്ഞില്ല: " + e.message);
   }
-  save();
-  ['f-date','f-company','f-qty','f-cost','f-sell','f-delivery'].forEach(id => { document.getElementById(id).value=''; });
-  document.getElementById('profit-preview').textContent = '0.00';
-  renderAll();
-}
+};
 
-function editEntry(id) {
+window.editEntry = (id) => {
   const e = entries.find(x => x.id === id);
   if (!e) return;
   editingId = id;
@@ -803,28 +667,30 @@ function editEntry(id) {
   document.getElementById('f-cost').value = e.cost;
   document.getElementById('f-sell').value = e.sell;
   document.getElementById('f-delivery').value = e.delivery;
-  calcProfit();
+  window.calcProfit();
   const btn = document.getElementById('btn-add');
   btn.innerHTML = '<i class="ti ti-check"></i> Update Entry';
   document.getElementById('btn-cancel-edit').style.display = 'inline-flex';
   document.querySelector('.card').scrollIntoView({behavior:'smooth'});
-}
+};
 
-function cancelEdit() {
+window.cancelEdit = () => {
   editingId = null;
   const btn = document.getElementById('btn-add');
   btn.innerHTML = '<i class="ti ti-plus"></i> Add Entry';
   document.getElementById('btn-cancel-edit').style.display = 'none';
   ['f-date','f-company','f-qty','f-cost','f-sell','f-delivery'].forEach(id => { document.getElementById(id).value=''; });
   document.getElementById('profit-preview').textContent = '0.00';
-}
+};
 
-function deleteEntry(id) {
+window.deleteEntry = async (id) => {
   if (!confirm('Delete this entry?')) return;
-  entries = entries.filter(e => e.id !== id);
-  save();
-  renderAll();
-}
+  try {
+    await deleteDoc(docDocRef(id));
+  } catch(e) {
+    alert("ഡിലീറ്റ് ചെയ്യാൻ സാധിച്ചില്ല: " + e.message);
+  }
+};
 
 function getBadge(item) {
   const cls = ITEMS[item]||'other';
@@ -872,7 +738,7 @@ function populateYearFilter() {
   if (years.includes(Number(current))) sel.value = current;
 }
 
-function renderTable() {
+window.renderTable = () => {
   const filterYY = document.getElementById('filter-year').value;
   const filterMM = document.getElementById('filter-month').value;
   const filterType = document.getElementById('filter-type').value;
@@ -897,12 +763,12 @@ function renderTable() {
       <td class="delivery-cell">${e.delivery>0?'− '+e.delivery.toFixed(2):'—'}</td>
       <td class="profit-cell">${e.profit.toFixed(2)}</td>
       <td>
-        <button class="btn-del" onclick="editEntry(${e.id})" title="Edit"><i class="ti ti-edit"></i></button>
-        <button class="btn-del" onclick="deleteEntry(${e.id})" title="Delete"><i class="ti ti-trash"></i></button>
+        <button class="btn-del" onclick="editEntry('${e.id}')" title="Edit"><i class="ti ti-edit"></i></button>
+        <button class="btn-del" onclick="deleteEntry('${e.id}')" title="Delete"><i class="ti ti-trash"></i></button>
       </td>
     </tr>
   `).join('');
-}
+};
 
 function updateStats() {
   const tot = k => entries.reduce((s,e)=>s+e[k], 0);
@@ -913,18 +779,7 @@ function updateStats() {
   document.getElementById('record-count').textContent = entries.length + ' records';
 }
 
-function renderAll() { populateYearFilter(); populateItemFilter(); renderMonthly(); renderYearly(); renderTable(); updateStats(); }
-
-load();
-loadCustomItems();
-renderAll();
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(e => console.log('SW failed:', e));
-  });
-}
-
+function renderAll() { populateYearFilter(); renderMonthly(); renderYearly(); window.renderTable(); updateStats(); }
 </script>
 </body>
 </html>

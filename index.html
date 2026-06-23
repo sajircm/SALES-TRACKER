@@ -9,12 +9,12 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .badge-invoice { background-color: #d1fae5; color: #065f46; }
+        .badge-invoice { background-color: #e0f2fe; color: #0369a1; }
         .badge-job { background-color: #dbeafe; color: #1e40af; }
-        .badge-card { background-color: #fef3c7; color: #92400e; }
+        .badge-card { background-color: #fef3c7; color: #d97706; }
         .badge-flyer { background-color: #f3e8ff; color: #6b21a8; }
         .badge-sticker { background-color: #fee2e2; color: #991b1b; }
-        .badge-other { background-color: #e2e8f0; color: #334155; }
+        .badge-other { background-color: #f1f5f9; color: #475569; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -87,8 +87,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Company Name</label>
-                                <input type="text" id="f-company" list="company-suggestions" placeholder="e.g. BLUE TAG L.L.C" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
-                                <datalist id="company-suggestions"></datalist>
+                                <input type="text" id="f-company" placeholder="e.g. BLUE TAG L.L.C" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
@@ -105,7 +104,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Quantity</label>
-                                    <input type="text" id="f-qty" placeholder="e.g. 50" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+                                    <input type="text" id="f-qty" placeholder="50 or 1000 CARD" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
                                 </div>
                             </div>
                             <div class="grid grid-cols-3 gap-2">
@@ -149,48 +148,47 @@
                     </div>
 
                     <div class="lg:col-span-2 space-y-4">
-                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-                            <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
-                                <div class="flex flex-1 w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 items-center gap-2">
-                                    <i class="ti ti-search text-gray-400"></i>
-                                    <input type="text" id="filter-search" oninput="renderAll()" placeholder="Search Company Name..." class="bg-transparent text-sm w-full focus:outline-none">
-                                </div>
-                                <button onclick="exportToExcel()" class="w-full md:w-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold py-2.5 px-4 rounded-xl transition inline-flex items-center justify-center gap-2">
-                                    <i class="ti ti-download text-base"></i> Export Statement
-                                </button>
+                        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-wrap items-center gap-3">
+                            <div class="flex flex-1 min-w-[200px] bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 items-center gap-2">
+                                <i class="ti ti-search text-gray-400"></i>
+                                <input type="text" id="filter-search" oninput="renderTable()" placeholder="Search Company Name..." class="bg-transparent text-sm w-full focus:outline-none">
                             </div>
                             
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                <select id="filter-year" onchange="renderAll()" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none">
-                                    <option value="">All Years</option>
-                                </select>
-                                <select id="filter-month" onchange="renderAll()" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none">
-                                    <option value="">All Months</option>
-                                    <option value="01">January</option>
-                                    <option value="02">February</option>
-                                    <option value="03">March</option>
-                                    <option value="04">April</option>
-                                    <option value="05">May</option>
-                                    <option value="06">June</option>
-                                    <option value="07">July</option>
-                                    <option value="08">August</option>
-                                    <option value="09">September</option>
-                                    <option value="10">October</option>
-                                    <option value="11">November</option>
-                                    <option value="12">December</option>
-                                </select>
-                                <select id="filter-type" onchange="renderAll()" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none">
-                                    <option value="">All Types</option>
-                                </select>
-                                <select id="filter-status" onchange="renderAll()" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none">
-                                    <option value="">All Status</option>
-                                    <option value="PAID">Paid</option>
-                                    <option value="PENDING">Pending</option>
-                                </select>
-                            </div>
-                            <div class="text-right">
-                                <span id="record-count" class="text-xs font-semibold text-gray-400 bg-gray-100 px-2.5 py-1 rounded-md">0 records</span>
-                            </div>
+                            <select id="filter-type" onchange="renderTable()" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none text-gray-600">
+                                <option value="">All Types</option>
+                            </select>
+
+                            <select id="filter-month" onchange="renderTable()" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none text-gray-600">
+                                <option value="">All Months</option>
+                                <option value="01">Jan</option>
+                                <option value="02">Feb</option>
+                                <option value="03">Mar</option>
+                                <option value="04">Apr</option>
+                                <option value="05">May</option>
+                                <option value="06">Jun</option>
+                                <option value="07">Jul</option>
+                                <option value="08">Aug</option>
+                                <option value="09">Sep</option>
+                                <option value="10">Oct</option>
+                                <option value="11">Nov</option>
+                                <option value="12">Dec</option>
+                            </select>
+
+                            <select id="filter-year" onchange="renderTable()" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none text-gray-600">
+                                <option value="">All Years</option>
+                            </select>
+
+                            <select id="filter-status" onchange="renderTable()" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none text-gray-600">
+                                <option value="">All Status</option>
+                                <option value="PAID">Paid</option>
+                                <option value="PENDING">Pending</option>
+                            </select>
+
+                            <span id="record-count" class="text-xs font-semibold text-gray-400 bg-gray-100 px-2.5 py-1.5 rounded-lg whitespace-nowrap">0 records</span>
+
+                            <button onclick="exportToExcel()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold py-2 px-3 rounded-xl transition inline-flex items-center gap-1.5 ml-auto">
+                                <i class="ti ti-download text-sm"></i> Export
+                            </button>
                         </div>
 
                         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -198,10 +196,10 @@
                                 <table class="w-full text-left border-collapse min-w-[850px]">
                                     <thead>
                                         <tr class="bg-gray-50/70 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                            <th class="p-4 w-32">Date</th>
+                                            <th class="p-4 w-28">Date</th>
                                             <th class="p-4">Company</th>
-                                            <th class="p-4 w-32">Item</th>
-                                            <th class="p-4 w-16">Qty</th>
+                                            <th class="p-4 w-36">Item</th>
+                                            <th class="p-4 w-20">Qty</th>
                                             <th class="p-4">Cost</th>
                                             <th class="p-4">Selling</th>
                                             <th class="p-4">Del.</th>
@@ -211,7 +209,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="tbody" class="divide-y divide-gray-50 text-sm font-medium text-gray-700">
-                                    </tbody>
+                                        </tbody>
                                 </table>
                             </div>
                         </div>
@@ -242,7 +240,7 @@
                         <i class="ti ti-calendar-stats text-emerald-600"></i> Monthly Breakdown Summary
                     </h3>
                     <div id="month-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-                    </div>
+                        </div>
                 </div>
             </div>
         </main>
@@ -269,7 +267,18 @@
     const provider = new GoogleAuthProvider();
 
     const MONTHS = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
-    const ITEMS = {'TAX INVOICE':'invoice','JOB ORDER':'job','BUSINESS CARD':'card','FLYER':'flyer','STICKER':'sticker','OTHER':'other'};
+    
+    const getItemBadgeClass = (itemStr) => {
+      if(!itemStr) return 'badge-other';
+      const clean = itemStr.toUpperCase();
+      if(clean.includes('INVOICE')) return 'badge-invoice';
+      if(clean.includes('JOB')) return 'badge-job';
+      if(clean.includes('CARD')) return 'badge-card';
+      if(clean.includes('FLYER')) return 'badge-flyer';
+      if(clean.includes('STICKER')) return 'badge-sticker';
+      return 'badge-other';
+    };
+
     let entries = [];
     let currentUser = null;
     let inlineEditingId = null;
@@ -295,39 +304,21 @@
       onSnapshot(collection(db, "users", currentUser.uid, "entries"), (snapshot) => {
         entries = [];
         snapshot.forEach((doc) => { entries.push({ id: doc.id, ...doc.data() }); });
-        entries.sort((a,b) => {
-          const dateA = parseSafeDate(a.date);
-          const dateB = parseSafeDate(b.date);
-          return dateB - dateA;
-        });
+        entries.sort((a,b) => new Date(b.date) - new Date(a.date));
         updateAdvancedFilterDropdowns();
         renderAll();
       });
     }
 
-    function parseSafeDate(dateStr) {
-      if (!dateStr || typeof dateStr !== 'string') return new Date(0);
-      const parts = dateStr.split('-');
-      if (parts.length !== 3) return new Date(0);
-      
-      if (parts[0].length === 4) {
-        return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-      } else {
-        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-      }
-    }
-
     function updateAdvancedFilterDropdowns() {
-      const types = new Set(Object.keys(ITEMS));
+      const types = new Set(["TAX INVOICE", "JOB ORDER", "BUSINESS CARD", "FLYER", "STICKER"]);
       const years = new Set();
       
       entries.forEach(e => { 
-        if(e.item) types.add(e.item); 
-        if(e.date) {
-          const dt = parseSafeDate(e.date);
-          if (dt && !isNaN(dt.getTime()) && dt.getFullYear() > 1970) {
-            years.add(String(dt.getFullYear()));
-          }
+        if(e.item) types.add(e.item.toUpperCase()); 
+        if(e.date && e.date.includes('-')) {
+          const y = e.date.split('-')[0];
+          if(y && y.length === 4) years.add(y);
         }
       });
       
@@ -356,7 +347,7 @@
       const date = document.getElementById('f-date').value;
       const company = document.getElementById('f-company').value.trim().toUpperCase();
       const item = document.getElementById('f-item').value;
-      const qty = parseFloat(document.getElementById('f-qty').value)||0;
+      const qtyRaw = document.getElementById('f-qty').value;
       const cost = parseFloat(document.getElementById('f-cost').value)||0;
       const sell = parseFloat(document.getElementById('f-sell').value)||0;
       const delivery = parseFloat(document.getElementById('f-delivery').value)||0;
@@ -364,6 +355,9 @@
       
       if (!date || !company || !sell) { alert('Date, Company, and Selling Amount are required.'); return; }
       
+      let qty = parseFloat(qtyRaw);
+      if(isNaN(qty)) qty = qtyRaw || 0;
+
       const id = "id_" + Date.now();
       await setDoc(doc(db, "users", currentUser.uid, "entries", id), {
         date, company, item, qty, cost, sell, delivery, status, profit: sell - cost - delivery
@@ -413,7 +407,7 @@
             if (!dateRaw || !companyRaw || !sellRaw) continue;
 
             let cleanQty = typeof qtyRaw === 'string' ? parseFloat(qtyRaw.replace(/[^0-9.]/g, '')) : parseFloat(qtyRaw);
-            if (isNaN(cleanQty)) cleanQty = 0;
+            if (isNaN(cleanQty)) cleanQty = qtyRaw;
 
             const cleanCost = parseFloat(costRaw) || 0;
             const cleanSell = parseFloat(sellRaw) || 0;
@@ -461,13 +455,16 @@
       const date = document.getElementById(`edit-date-${id}`).value;
       const company = document.getElementById(`edit-comp-${id}`).value.trim().toUpperCase();
       const item = document.getElementById(`edit-item-${id}`).value.trim().toUpperCase();
-      const qty = parseFloat(document.getElementById(`edit-qty-${id}`).value)||0;
+      const qtyRaw = document.getElementById(`edit-qty-${id}`).value;
       const cost = parseFloat(document.getElementById(`edit-cost-${id}`).value)||0;
       const sell = parseFloat(document.getElementById(`edit-sell-${id}`).value)||0;
-      const delivery = document.getElementById(`edit-del-${id}`) ? parseFloat(document.getElementById(`edit-del-${id}`).value)||0 : 0;
+      const delivery = parseFloat(document.getElementById(`edit-del-${id}`).value)||0;
       const status = document.getElementById(`edit-status-${id}`).value;
 
       if(!company || !sell || !date || !item) { alert('Fields cannot be empty'); return; }
+
+      let qty = parseFloat(qtyRaw);
+      if(isNaN(qty)) qty = qtyRaw || 0;
 
       await setDoc(doc(db, "users", currentUser.uid, "entries", id), {
         date, company, item, qty, cost, sell, delivery, status, profit: sell - cost - delivery
@@ -491,15 +488,10 @@
       return entries.filter(e => {
         if (search && !e.company.toLowerCase().includes(search)) return false;
         if (statusFilter && e.status !== statusFilter) return false;
-        if (typeFilter && e.item !== typeFilter) return false;
+        if (typeFilter && e.item.toUpperCase() !== typeFilter.toUpperCase()) return false;
         
-        if (e.date) {
-          const dt = parseSafeDate(e.date);
-          if (isNaN(dt.getTime())) return false;
-          
-          const y = String(dt.getFullYear());
-          const m = String(dt.getMonth() + 1).padStart(2, '0');
-          
+        if (e.date && e.date.includes('-')) {
+          const [y, m] = e.date.split('-');
           if (yearFilter && y !== yearFilter) return false;
           if (monthFilter && m !== monthFilter) return false;
         } else if (yearFilter || monthFilter) {
@@ -513,67 +505,66 @@
       const filtered = getFilteredEntries();
       const tbody = document.getElementById('tbody');
       
-      const typesList = new Set(Object.keys(ITEMS));
-      entries.forEach(e => { if(e.item) typesList.add(e.item); });
+      const typesList = new Set(["TAX INVOICE", "JOB ORDER", "BUSINESS CARD", "FLYER", "STICKER"]);
+      entries.forEach(e => { if(e.item) typesList.add(e.item.toUpperCase()); });
       const typesArray = Array.from(typesList);
 
       tbody.innerHTML = filtered.map(e => {
         const isEditing = inlineEditingId === e.id;
-        const itemClass = ITEMS[e.item] || 'other';
+        const itemBadgeClass = getItemBadgeClass(e.item);
 
         let displayDate = e.date;
-        if (e.date) {
-          const dt = parseSafeDate(e.date);
-          if (!isNaN(dt.getTime())) {
-            const day = String(dt.getDate()).padStart(2, '0');
-            const month = String(dt.getMonth() + 1).padStart(2, '0');
-            const year = dt.getFullYear();
-            displayDate = `${day}-${month}-${year}`;
+        if (e.date && e.date.includes('-')) {
+          const parts = e.date.split('-');
+          if (parts.length === 3 && parts[0].length === 4) {
+            displayDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
           }
         }
 
         if (isEditing) {
           return `
             <tr class="bg-slate-50">
-              <td class="p-2"><input type="date" id="edit-date-${e.id}" class="border rounded px-1.5 py-1 text-xs w-full" value="${e.date}"></td>
-              <td class="p-2"><input type="text" id="edit-comp-${e.id}" class="border rounded px-1.5 py-1 w-full text-xs font-bold" value="${e.company}"></td>
+              <td class="p-2"><input type="date" id="edit-date-${e.id}" class="border border-gray-300 rounded px-1.5 py-1 text-xs w-full font-sans" value="${e.date}"></td>
+              <td class="p-2"><input type="text" id="edit-comp-${e.id}" class="border border-gray-300 rounded px-1.5 py-1 w-full text-xs font-bold" value="${e.company}"></td>
               <td class="p-2">
-                <select id="edit-item-${e.id}" class="border rounded px-1 py-1 text-xs w-full">
-                  ${typesArray.map(t => `<option value="${t}" ${e.item===t?'selected':''}>${t}</option>`).join('')}
+                <select id="edit-item-${e.id}" class="border border-gray-300 rounded px-1 py-1 text-xs w-full bg-white">
+                  ${typesArray.map(t => `<option value="${t}" ${e.item.toUpperCase()===t?'selected':''}>${t}</option>`).join('')}
                 </select>
               </td>
-              <td class="p-2"><input type="number" id="edit-qty-${e.id}" class="border rounded px-1 py-1 w-12 text-xs" value="${e.qty}"></td>
-              <td class="p-2"><input type="number" id="edit-cost-${e.id}" class="border rounded px-1 py-1 w-16 text-xs" value="${e.cost}"></td>
-              <td class="p-2"><input type="number" id="edit-sell-${e.id}" class="border rounded px-1 py-1 w-16 text-xs" value="${e.sell}"></td>
-              <td class="p-2"><input type="number" id="edit-del-${e.id}" class="border rounded px-1 py-1 w-14 text-xs" value="${e.delivery||0}"></td>
+              <td class="p-2"><input type="text" id="edit-qty-${e.id}" class="border border-gray-300 rounded px-1 py-1 w-full text-xs" value="${e.qty}"></td>
+              <td class="p-2"><input type="number" id="edit-cost-${e.id}" class="border border-gray-300 rounded px-1 py-1 w-16 text-xs" value="${e.cost}"></td>
+              <td class="p-2"><input type="number" id="edit-sell-${e.id}" class="border border-gray-300 rounded px-1 py-1 w-16 text-xs" value="${e.sell}"></td>
+              <td class="p-2"><input type="number" id="edit-del-${e.id}" class="border border-gray-300 rounded px-1 py-1 w-14 text-xs" value="${e.delivery}"></td>
               <td class="p-2">
-                <select id="edit-status-${e.id}" class="border rounded px-1 py-1 text-xs">
+                <select id="edit-status-${e.id}" class="border border-gray-300 rounded px-1 py-1 text-xs bg-white">
                   <option value="PAID" ${e.status==='PAID'?'selected':''}>Paid</option>
                   <option value="PENDING" ${e.status==='PENDING'?'selected':''}>Pending</option>
                 </select>
               </td>
               <td class="p-2 font-bold text-emerald-600">${e.profit.toFixed(2)}</td>
-              <td class="p-2 text-center space-x-1.5">
-                <button onclick="saveInlineEdit('${e.id}')" class="text-emerald-600 font-bold text-base"><i class="ti ti-check"></i></button>
-                <button onclick="cancelInlineEdit()" class="text-gray-400 text-base"><i class="ti ti-x"></i></button>
+              <td class="p-2 text-center space-x-2">
+                <button onclick="saveInlineEdit('${e.id}')" class="text-emerald-600 font-bold text-base hover:text-emerald-800"><i class="ti ti-check"></i></button>
+                <button onclick="cancelInlineEdit()" class="text-gray-400 text-base hover:text-gray-600"><i class="ti ti-x"></i></button>
               </td>
             </tr>`;
         }
 
+        const formattedQty = typeof e.qty === 'number' ? e.qty.toLocaleString() : e.qty;
+
         return `
           <tr class="hover:bg-gray-50/80 transition">
-            <td class="p-4 text-gray-500 font-medium">${displayDate}</td>
-            <td class="p-4 font-bold text-gray-900">${e.company}</td>
-            <td class="p-4"><span class="px-2 py-1 rounded-md text-2xs font-bold badge-${itemClass}">${e.item}</span></td>
-            <td class="p-4 text-gray-600">${(e.qty||0).toLocaleString()}</td>
-            <td class="p-4 text-gray-500">AED ${(e.cost||0).toFixed(2)}</td>
-            <td class="p-4 text-gray-900 font-semibold">AED ${(e.sell||0).toFixed(2)}</td>
-            <td class="p-4 text-gray-500">AED ${(e.delivery||0).toFixed(2)}</td>
-            <td class="p-4"><span class="px-2 py-1 rounded-full text-2xs font-extrabold tracking-wider bg-${(e.status||'PAID').toLowerCase()=== 'paid' ? 'emerald-500' : 'amber-500'} text-white text-xs">${e.status||'PAID'}</span></td>
-            <td class="p-4 font-extrabold text-emerald-600">AED ${(e.profit||0).toFixed(2)}</td>
-            <td class="p-4 text-center space-x-2">
-              <button onclick="startInlineEdit('${e.id}')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="ti ti-edit"></i></button>
-              <button onclick="deleteEntry('${e.id}')" class="text-slate-400 hover:text-red-600 text-lg"><i class="ti ti-trash"></i></button>
+            <td class="p-4 text-gray-500 font-medium whitespace-nowrap">${displayDate}</td>
+            <td class="p-4 font-bold text-gray-900 break-words max-w-[200px]">${e.company}</td>
+            <td class="p-4"><span class="px-2.5 py-1 rounded-md text-xs font-bold tracking-wide whitespace-nowrap inline-block ${itemBadgeClass}">${e.item}</span></td>
+            <td class="p-4 text-gray-600 font-medium">${formattedQty || 0}</td>
+            <td class="p-4 text-gray-500 whitespace-nowrap">AED ${(e.cost||0).toFixed(2)}</td>
+            <td class="p-4 text-gray-900 font-semibold whitespace-nowrap">AED ${(e.sell||0).toFixed(2)}</td>
+            <td class="p-4 text-gray-500 whitespace-nowrap">AED ${(e.delivery||0).toFixed(2)}</td>
+            <td class="p-4"><span class="px-2 py-0.5 rounded-full text-xs font-extrabold tracking-wider bg-${(e.status||'PAID').toLowerCase()=== 'paid' ? 'emerald-500' : 'amber-500'} text-white">${e.status||'PAID'}</span></td>
+            <td class="p-4 font-extrabold text-emerald-600 whitespace-nowrap">AED ${(e.profit||0).toFixed(2)}</td>
+            <td class="p-4 text-center space-x-2 whitespace-nowrap">
+              <button onclick="startInlineEdit('${e.id}')" class="text-slate-400 hover:text-slate-600 text-lg transition"><i class="ti ti-edit"></i></button>
+              <button onclick="deleteEntry('${e.id}')" class="text-slate-400 hover:text-red-600 text-lg transition"><i class="ti ti-trash"></i></button>
             </td>
           </tr>`;
       }).join('');
@@ -603,16 +594,12 @@
     };
 
     function calculateAnalytics() {
-      const filtered = getFilteredEntries();
-      if (!filtered.length) {
-        document.getElementById('analytics-client').innerHTML = "No data";
-        document.getElementById('analytics-product').innerHTML = "No data";
-        return;
-      }
+      if (!entries.length) return;
       const clientMap = {}; const productMap = {};
-      filtered.forEach(e => {
+      entries.forEach(e => {
         clientMap[e.company] = (clientMap[e.company]||0) + e.profit;
-        productMap[e.item] = (productMap[e.item]||0) + e.qty;
+        const q = parseFloat(e.qty) || 0;
+        productMap[e.item] = (productMap[e.item]||0) + q;
       });
       const topClient = Object.keys(clientMap).reduce((a, b) => clientMap[a] > clientMap[b] ? a : b, "None");
       const topProduct = Object.keys(productMap).reduce((a, b) => productMap[a] > productMap[b] ? a : b, "None");
@@ -622,61 +609,34 @@
 
     function updateStats() {
       let rev = 0, cost = 0, del = 0, prof = 0, pending = 0;
-      const filtered = getFilteredEntries();
-      
-      filtered.forEach(e => {
-        rev += (e.sell || 0); 
-        cost += (e.cost || 0); 
-        del += (e.delivery || 0); 
-        prof += (e.profit || 0);
-        if (e.status === 'PENDING') pending += (e.sell || 0);
+      entries.forEach(e => {
+        rev += e.sell; cost += e.cost; del += e.delivery; prof += e.profit;
+        if (e.status === 'PENDING') pending += e.sell;
       });
-      
       document.getElementById('stat-revenue').textContent = rev.toFixed(2);
       document.getElementById('stat-cost').textContent = cost.toFixed(2);
       document.getElementById('stat-pending').textContent = pending.toFixed(2);
       document.getElementById('stat-profit').textContent = prof.toFixed(2);
     }
 
-    function updateAddRecordCompanySuggestions() {
-      const filtered = getFilteredEntries();
-      const uniqueCompanies = [...new Set(filtered.map(e => e.company))].filter(Boolean).sort();
-      const datalist = document.getElementById('company-suggestions');
-      if (datalist) {
-        datalist.innerHTML = uniqueCompanies.map(comp => `<option value="${comp}"></option>`).join('');
-      }
-    }
-
     function renderMonthly() {
       const map = {};
-      const filteredData = getFilteredEntries();
-      
-      filteredData.forEach(e => {
+      entries.forEach(e => {
         if (!e.date) return;
-        const dt = parseSafeDate(e.date);
-        if (isNaN(dt.getTime())) return;
-        
-        const y = String(dt.getFullYear());
-        const m = dt.getMonth() + 1;
-        
-        const key = y + '-' + String(m).padStart(2, '0');
-        if (!map[key]) map[key] = { year: y, month: m, profit: 0, count: 0 };
+        const [y, m] = e.date.split('-');
+        if (!m || !y) return;
+        const key = y + '-' + parseInt(m);
+        if (!map[key]) map[key] = { year: y, month: parseInt(m), profit: 0, count: 0 };
         map[key].profit += e.profit; map[key].count++;
       });
-      
       const el = document.getElementById('month-grid');
-      if(!el) return;
-      
-      const keys = Object.keys(map).sort().reverse();
-      if(!keys.length) { 
-        el.innerHTML = '<div class="text-sm font-semibold text-gray-400 p-4 bg-white rounded-xl border border-dashed text-center w-full">No records found for the selected filter.</div>'; 
-        return; 
-      }
+      const keys = Object.keys(map).sort();
+      if(!keys.length) { el.innerHTML = '<div class="text-sm font-semibold text-gray-400">No entries recorded.</div>'; return; }
       
       el.innerHTML = keys.map(k => `
         <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition duration-200 flex justify-between items-center">
           <div class="space-y-0.5">
-            <div class="font-bold text-gray-800 text-base">${MONTHS[map[k].month] || 'Month'} ${map[k].year}</div>
+            <div class="font-bold text-gray-800 text-base">${MONTHS[map[k].month]} ${map[k].year}</div>
             <div class="inline-flex items-center gap-1 bg-slate-50 text-slate-500 px-2 py-0.5 rounded-md text-2xs font-bold uppercase tracking-wider border border-slate-100">
                <i class="ti ti-box-seam text-xs text-slate-400"></i> ${map[k].count} orders
             </div>
@@ -692,17 +652,12 @@
     let chartObj = null;
     function renderChart() {
       const map = {};
-      getFilteredEntries().forEach(e => {
+      entries.forEach(e => {
         if(!e.date) return;
-        const dt = parseSafeDate(e.date);
-        if(isNaN(dt.getTime())) return;
-        
-        const y = String(dt.getFullYear());
-        const m = dt.getMonth() + 1;
-        const key = y + '-' + String(m).padStart(2, '0');
+        const [y, m] = e.date.split('-');
+        const key = y + '-' + m;
         map[key] = (map[key]||0) + e.profit;
       });
-      
       const keys = Object.keys(map).sort();
       const ctx = document.getElementById('profit-chart');
       if (!ctx) return;
@@ -736,16 +691,7 @@
       } else { sel.value = 'OTHER'; }
     };
 
-    function renderAll() { 
-      updateStats(); 
-      window.renderTable(); 
-      updateAddRecordCompanySuggestions();
-      calculateAnalytics(); 
-      renderMonthly();
-      if (document.getElementById('tab-reports').classList.contains('hidden') === false) {
-        renderChart();
-      }
-    }
+    function renderAll() { updateStats(); window.renderTable(); calculateAnalytics(); }
     </script>
 </body>
 </html>

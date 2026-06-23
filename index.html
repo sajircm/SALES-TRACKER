@@ -306,8 +306,10 @@
       
       entries.forEach(e => { 
         if(e.item) types.add(e.item); 
-        if(e.date && e.date.includes('-')) {
-          const y = e.date.split('-')[0];
+        if(e.date) {
+          // Supports both YYYY-MM-DD and DD-MM-YYYY formats safely
+          const parts = e.date.split('-');
+          const y = parts[0].length === 4 ? parts[0] : parts[2];
           if(y && y.length === 4) years.add(y);
         }
       });
@@ -439,14 +441,13 @@
     window.startInlineEdit = (id) => { inlineEditingId = id; window.renderTable(); };
 
     window.saveInlineEdit = async (id) => {
-      const row = entries.find(e => e.id === id);
       const date = document.getElementById(`edit-date-${id}`).value;
       const company = document.getElementById(`edit-comp-${id}`).value.trim().toUpperCase();
       const item = document.getElementById(`edit-item-${id}`).value.trim().toUpperCase();
       const qty = parseFloat(document.getElementById(`edit-qty-${id}`).value)||0;
       const cost = parseFloat(document.getElementById(`edit-cost-${id}`).value)||0;
       const sell = parseFloat(document.getElementById(`edit-sell-${id}`).value)||0;
-      const delivery = parseFloat(document.getElementById(`edit-del-${id}`).value)||0;
+      const delivery = document.getElementById(`edit-del-${id}`) ? parseFloat(document.getElementById(`edit-del-${id}`).value)||0 : 0;
       const status = document.getElementById(`edit-status-${id}`).value;
 
       if(!company || !sell || !date || !item) { alert('Fields cannot be empty'); return; }
@@ -463,7 +464,7 @@
       if (confirm('Delete this entry?')) await deleteDoc(doc(db, "users", currentUser.uid, "entries", id));
     };
 
-    // Get Active Filtered List for Table and Export支持
+    // FIXED: Get Active Filtered List for Table and Reports flawlessly
     function getFilteredEntries() {
       const search = document.getElementById('filter-search').value.toLowerCase();
       const statusFilter = document.getElementById('filter-status').value;
@@ -477,7 +478,11 @@
         if (typeFilter && e.item !== typeFilter) return false;
         
         if (e.date && e.date.includes('-')) {
-          const [y, m] = e.date.split('-');
+          const parts = e.date.split('-');
+          // Safe extraction depending on YYYY-MM-DD or DD-MM-YYYY format
+          const y = parts[0].length === 4 ? parts[0] : parts[2];
+          const m = parts[0].length === 4 ? parts[1] : parts[1];
+          
           if (yearFilter && y !== yearFilter) return false;
           if (monthFilter && m !== monthFilter) return false;
         } else if (yearFilter || monthFilter) {
@@ -491,7 +496,6 @@
       const filtered = getFilteredEntries();
       const tbody = document.getElementById('tbody');
       
-      // Dynamic item dropdown options helper for inside inline rows
       const typesList = new Set(Object.keys(ITEMS));
       entries.forEach(e => { if(e.item) typesList.add(e.item); });
       const typesArray = Array.from(typesList);
@@ -521,7 +525,7 @@
               <td class="p-2"><input type="number" id="edit-qty-${e.id}" class="border rounded px-1 py-1 w-12 text-xs" value="${e.qty}"></td>
               <td class="p-2"><input type="number" id="edit-cost-${e.id}" class="border rounded px-1 py-1 w-16 text-xs" value="${e.cost}"></td>
               <td class="p-2"><input type="number" id="edit-sell-${e.id}" class="border rounded px-1 py-1 w-16 text-xs" value="${e.sell}"></td>
-              <td class="p-2"><input type="number" id="edit-del-${e.id}" class="border rounded px-1 py-1 w-14 text-xs" value="${e.delivery}"></td>
+              <td class="p-2"><input type="number" id="edit-del-${e.id}" class="border rounded px-1 py-1 w-14 text-xs" value="${e.delivery||0}"></td>
               <td class="p-2">
                 <select id="edit-status-${e.id}" class="border rounded px-1 py-1 text-xs">
                   <option value="PAID" ${e.status==='PAID'?'selected':''}>Paid</option>
@@ -598,6 +602,7 @@
 
     function updateStats() {
       let rev = 0, cost = 0, del = 0, prof = 0, pending = 0;
+      // Stats top header always shows overall wallet summary
       entries.forEach(e => {
         rev += e.sell; cost += e.cost; del += e.delivery; prof += e.profit;
         if (e.status === 'PENDING') pending += e.sell;
@@ -614,7 +619,9 @@
       
       filteredData.forEach(e => {
         if (!e.date) return;
-        const [y, m] = e.date.split('-');
+        const parts = e.date.split('-');
+        const y = parts[0].length === 4 ? parts[0] : parts[2];
+        const m = parts[1];
         if (!m || !y) return;
         const key = y + '-' + String(m).padStart(2, '0');
         if (!map[key]) map[key] = { year: y, month: parseInt(m), profit: 0, count: 0 };
@@ -651,7 +658,9 @@
       const map = {};
       getFilteredEntries().forEach(e => {
         if(!e.date) return;
-        const [y, m] = e.date.split('-');
+        const parts = e.date.split('-');
+        const y = parts[0].length === 4 ? parts[0] : parts[2];
+        const m = parts[1];
         const key = y + '-' + String(m).padStart(2, '0');
         map[key] = (map[key]||0) + e.profit;
       });

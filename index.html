@@ -267,7 +267,7 @@
     const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
-    const MONTHS = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+    const MONTHS = ['','January','February','March','April May','June','July','August','September','October','November','December'];
     const ITEMS = {'TAX INVOICE':'invoice','JOB ORDER':'job','BUSINESS CARD':'card','FLYER':'flyer','STICKER':'sticker','OTHER':'other'};
     let entries = [];
     let currentUser = null;
@@ -294,10 +294,29 @@
       onSnapshot(collection(db, "users", currentUser.uid, "entries"), (snapshot) => {
         entries = [];
         snapshot.forEach((doc) => { entries.push({ id: doc.id, ...doc.data() }); });
-        entries.sort((a,b) => new Date(b.date) - new Date(a.date));
+        entries.sort((a,b) => {
+          const dateA = parseSafeDate(a.date);
+          const dateB = parseSafeDate(b.date);
+          return dateB - dateA;
+        });
         updateAdvancedFilterDropdowns();
         renderAll();
       });
+    }
+
+    // Helper to parse date completely safe regardless of DD-MM-YYYY or YYYY-MM-DD
+    function parseSafeDate(dateStr) {
+      if (!dateStr || typeof dateStr !== 'string') return new Date(0);
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return new Date(0);
+      
+      if (parts[0].length === 4) {
+        // YYYY-MM-DD
+        return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      } else {
+        // DD-MM-YYYY
+        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      }
     }
 
     function updateAdvancedFilterDropdowns() {
@@ -307,10 +326,10 @@
       entries.forEach(e => { 
         if(e.item) types.add(e.item); 
         if(e.date) {
-          // Supports both YYYY-MM-DD and DD-MM-YYYY formats safely
-          const parts = e.date.split('-');
-          const y = parts[0].length === 4 ? parts[0] : parts[2];
-          if(y && y.length === 4) years.add(y);
+          const dt = parseSafeDate(e.date);
+          if (dt && !isNaN(dt.getTime()) && dt.getFullYear() > 1970) {
+            years.add(String(dt.getFullYear()));
+          }
         }
       });
       
@@ -464,7 +483,7 @@
       if (confirm('Delete this entry?')) await deleteDoc(doc(db, "users", currentUser.uid, "entries", id));
     };
 
-    // FIXED: Get Active Filtered List for Table and Reports flawlessly
+    // FIXED LOGIC: Strict standard Javascript Date Filter system
     function getFilteredEntries() {
       const search = document.getElementById('filter-search').value.toLowerCase();
       const statusFilter = document.getElementById('filter-status').value;
@@ -477,11 +496,12 @@
         if (statusFilter && e.status !== statusFilter) return false;
         if (typeFilter && e.item !== typeFilter) return false;
         
-        if (e.date && e.date.includes('-')) {
-          const parts = e.date.split('-');
-          // Safe extraction depending on YYYY-MM-DD or DD-MM-YYYY format
-          const y = parts[0].length === 4 ? parts[0] : parts[2];
-          const m = parts[0].length === 4 ? parts[1] : parts[1];
+        if (e.date) {
+          const dt = parseSafeDate(e.date);
+          if (isNaN(dt.getTime())) return false; // invalid date skip
+          
+          const y = String(dt.getFullYear());
+          const m = String(dt.getMonth() + 1).padStart(2, '0');
           
           if (yearFilter && y !== yearFilter) return false;
           if (monthFilter && m !== monthFilter) return false;
@@ -505,10 +525,13 @@
         const itemClass = ITEMS[e.item] || 'other';
 
         let displayDate = e.date;
-        if (e.date && e.date.includes('-')) {
-          const parts = e.date.split('-');
-          if (parts.length === 3 && parts[0].length === 4) {
-            displayDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        if (e.date) {
+          const dt = parseSafeDate(e.date);
+          if (!isNaN(dt.getTime())) {
+            const day = String(dt.getDate()).padStart(2, '0');
+            const month = String(dt.getMonth() + 1).padStart(2, '0');
+            const year = dt.getFullYear();
+            displayDate = `${day}-${month}-${year}`;
           }
         }
 
@@ -532,181 +555,4 @@
                   <option value="PENDING" ${e.status==='PENDING'?'selected':''}>Pending</option>
                 </select>
               </td>
-              <td class="p-2 font-bold text-emerald-600">${e.profit.toFixed(2)}</td>
-              <td class="p-2 text-center space-x-1.5">
-                <button onclick="saveInlineEdit('${e.id}')" class="text-emerald-600 font-bold text-base"><i class="ti ti-check"></i></button>
-                <button onclick="cancelInlineEdit()" class="text-gray-400 text-base"><i class="ti ti-x"></i></button>
-              </td>
-            </tr>`;
-        }
-
-        return `
-          <tr class="hover:bg-gray-50/80 transition">
-            <td class="p-4 text-gray-500 font-medium">${displayDate}</td>
-            <td class="p-4 font-bold text-gray-900">${e.company}</td>
-            <td class="p-4"><span class="px-2 py-1 rounded-md text-2xs font-bold badge-${itemClass}">${e.item}</span></td>
-            <td class="p-4 text-gray-600">${(e.qty||0).toLocaleString()}</td>
-            <td class="p-4 text-gray-500">AED ${(e.cost||0).toFixed(2)}</td>
-            <td class="p-4 text-gray-900 font-semibold">AED ${(e.sell||0).toFixed(2)}</td>
-            <td class="p-4 text-gray-500">AED ${(e.delivery||0).toFixed(2)}</td>
-            <td class="p-4"><span class="px-2 py-1 rounded-full text-2xs font-extrabold tracking-wider bg-${(e.status||'PAID').toLowerCase()=== 'paid' ? 'emerald-500' : 'amber-500'} text-white text-xs">${e.status||'PAID'}</span></td>
-            <td class="p-4 font-extrabold text-emerald-600">AED ${(e.profit||0).toFixed(2)}</td>
-            <td class="p-4 text-center space-x-2">
-              <button onclick="startInlineEdit('${e.id}')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="ti ti-edit"></i></button>
-              <button onclick="deleteEntry('${e.id}')" class="text-slate-400 hover:text-red-600 text-lg"><i class="ti ti-trash"></i></button>
-            </td>
-          </tr>`;
-      }).join('');
-      document.getElementById('record-count').textContent = filtered.length + ' records';
-    };
-
-    window.exportToExcel = () => {
-      const filtered = getFilteredEntries();
-      if(filtered.length === 0) { alert('No records found to export.'); return; }
-      
-      const reportRows = filtered.map(e => ({
-        'DATE': e.date,
-        'COMPANY': e.company,
-        'ITEM': e.item,
-        'QTY': e.qty,
-        'COST': e.cost,
-        'SELLING': e.sell,
-        'DELIVERY': e.delivery,
-        'STATUS': e.status,
-        'PROFIT': e.profit
-      }));
-
-      const worksheet = XLSX.utils.json_to_sheet(reportRows);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Statement");
-      XLSX.writeFile(workbook, `Sales_Statement_${Date.now()}.xlsx`);
-    };
-
-    function calculateAnalytics() {
-      const filtered = getFilteredEntries();
-      if (!filtered.length) {
-        document.getElementById('analytics-client').innerHTML = "No data";
-        document.getElementById('analytics-product').innerHTML = "No data";
-        return;
-      }
-      const clientMap = {}; const productMap = {};
-      filtered.forEach(e => {
-        clientMap[e.company] = (clientMap[e.company]||0) + e.profit;
-        productMap[e.item] = (productMap[e.item]||0) + e.qty;
-      });
-      const topClient = Object.keys(clientMap).reduce((a, b) => clientMap[a] > clientMap[b] ? a : b, "None");
-      const topProduct = Object.keys(productMap).reduce((a, b) => productMap[a] > productMap[b] ? a : b, "None");
-      document.getElementById('analytics-client').innerHTML = topClient !== "None" ? `${topClient} <span class="text-emerald-600 text-xs font-bold">(Profit: AED ${clientMap[topClient].toFixed(2)})</span>` : "No data";
-      document.getElementById('analytics-product').innerHTML = topProduct !== "None" ? `${topProduct} <span class="text-gray-400 text-xs font-bold">(Qty: ${productMap[topProduct].toLocaleString()})</span>` : "No data";
-    }
-
-    function updateStats() {
-      let rev = 0, cost = 0, del = 0, prof = 0, pending = 0;
-      // Stats top header always shows overall wallet summary
-      entries.forEach(e => {
-        rev += e.sell; cost += e.cost; del += e.delivery; prof += e.profit;
-        if (e.status === 'PENDING') pending += e.sell;
-      });
-      document.getElementById('stat-revenue').textContent = rev.toFixed(2);
-      document.getElementById('stat-cost').textContent = cost.toFixed(2);
-      document.getElementById('stat-pending').textContent = pending.toFixed(2);
-      document.getElementById('stat-profit').textContent = prof.toFixed(2);
-    }
-
-    function renderMonthly() {
-      const map = {};
-      const filteredData = getFilteredEntries();
-      
-      filteredData.forEach(e => {
-        if (!e.date) return;
-        const parts = e.date.split('-');
-        const y = parts[0].length === 4 ? parts[0] : parts[2];
-        const m = parts[1];
-        if (!m || !y) return;
-        const key = y + '-' + String(m).padStart(2, '0');
-        if (!map[key]) map[key] = { year: y, month: parseInt(m), profit: 0, count: 0 };
-        map[key].profit += e.profit; map[key].count++;
-      });
-      
-      const el = document.getElementById('month-grid');
-      if(!el) return;
-      
-      const keys = Object.keys(map).sort().reverse();
-      if(!keys.length) { 
-        el.innerHTML = '<div class="text-sm font-semibold text-gray-400 p-4 bg-white rounded-xl border border-dashed text-center w-full">No records found for the selected filter.</div>'; 
-        return; 
-      }
-      
-      el.innerHTML = keys.map(k => `
-        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition duration-200 flex justify-between items-center">
-          <div class="space-y-0.5">
-            <div class="font-bold text-gray-800 text-base">${MONTHS[map[k].month]} ${map[k].year}</div>
-            <div class="inline-flex items-center gap-1 bg-slate-50 text-slate-500 px-2 py-0.5 rounded-md text-2xs font-bold uppercase tracking-wider border border-slate-100">
-               <i class="ti ti-box-seam text-xs text-slate-400"></i> ${map[k].count} orders
-            </div>
-          </div>
-          <div class="text-right">
-            <div class="text-2xs font-semibold text-gray-400 uppercase tracking-wider">Net Profit</div>
-            <div class="font-black text-emerald-600 text-lg">AED ${map[k].profit.toFixed(2)}</div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    let chartObj = null;
-    function renderChart() {
-      const map = {};
-      getFilteredEntries().forEach(e => {
-        if(!e.date) return;
-        const parts = e.date.split('-');
-        const y = parts[0].length === 4 ? parts[0] : parts[2];
-        const m = parts[1];
-        const key = y + '-' + String(m).padStart(2, '0');
-        map[key] = (map[key]||0) + e.profit;
-      });
-      
-      const keys = Object.keys(map).sort();
-      const ctx = document.getElementById('profit-chart');
-      if (!ctx) return;
-      if (chartObj) chartObj.destroy();
-      chartObj = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: keys,
-          datasets: [{ data: keys.map(k => map[k]), borderColor: '#10b981', tension: 0.2, fill: false }]
-        },
-        options: { plugins: { legend: { display: false } } }
-      });
-    }
-
-    window.switchTab = (name) => {
-      document.getElementById('tab-dashboard').classList.toggle('hidden', name!=='dashboard');
-      document.getElementById('tab-reports').classList.toggle('hidden', name!=='reports');
-      document.getElementById('tab-btn-dashboard').className = name==='dashboard' ? 'py-3 px-6 font-semibold border-b-2 border-emerald-600 text-emerald-600 flex items-center gap-2 transition' : 'py-3 px-6 font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 flex items-center gap-2 transition';
-      document.getElementById('tab-btn-reports').className = name==='reports' ? 'py-3 px-6 font-semibold border-b-2 border-emerald-600 text-emerald-600 flex items-center gap-2 transition' : 'py-3 px-6 font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 flex items-center gap-2 transition';
-      if (name === 'reports') { renderChart(); renderMonthly(); calculateAnalytics(); }
-    };
-
-    window.handleItemSelect = () => {
-      const sel = document.getElementById('f-item');
-      if (sel.value !== '__add__') return;
-      const name = (prompt('Enter custom product/item name:')||'').trim().toUpperCase();
-      if (name) {
-        const opt = document.createElement('option');
-        opt.value = name; opt.textContent = name;
-        sel.insertBefore(opt, sel.lastChild); sel.value = name;
-      } else { sel.value = 'OTHER'; }
-    };
-
-    function renderAll() { 
-      updateStats(); 
-      window.renderTable(); 
-      calculateAnalytics(); 
-      renderMonthly();
-      if (document.getElementById('tab-reports').classList.contains('hidden') === false) {
-        renderChart();
-      }
-    }
-    </script>
-</body>
-</html>
+              <td class="p-2 font-bold text-emerald-600">${e.profit.

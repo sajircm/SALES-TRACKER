@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Tracker</title>
+    <!-- Tailwind CSS for modern UI -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tabler Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <!-- SheetJS Library for Excel Import -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Chart.js for reports -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .badge-invoice { background-color: #d1fae5; color: #065f46; }
@@ -22,6 +26,7 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans min-h-screen">
 
+    <!-- 1. AUTH SCREEN -->
     <div id="auth-screen" class="flex flex-col items-center justify-center min-h-screen p-4">
         <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border border-gray-100">
             <div class="text-emerald-600 mb-4"><i class="ti ti-trending-up text-6xl"></i></div>
@@ -33,7 +38,9 @@
         </div>
     </div>
 
+    <!-- 2. MAIN APP CONTENT -->
     <div id="app-content" class="hidden">
+        <!-- Header -->
         <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
             <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
@@ -49,6 +56,7 @@
             </div>
         </header>
 
+        <!-- Navigation Tabs -->
         <div class="max-w-7xl mx-auto px-4 mt-6">
             <div class="flex border-b border-gray-200">
                 <button id="tab-btn-dashboard" onclick="switchTab('dashboard')" class="py-3 px-6 font-semibold border-b-2 border-emerald-600 text-emerald-600 flex items-center gap-2 transition active"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
@@ -56,9 +64,12 @@
             </div>
         </div>
 
+        <!-- MAIN CONTAINER -->
         <main class="max-w-7xl mx-auto px-4 py-6">
             
+            <!-- DASHBOARD TAB -->
             <div id="tab-dashboard">
+                <!-- Stats Overview -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                     <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                         <div class="text-gray-400 font-medium text-xs uppercase tracking-wider mb-1">Total Revenue</div>
@@ -79,7 +90,9 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left: Entry Form & Quick Tools -->
                     <div class="space-y-6">
+                        <!-- Form Card -->
                         <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
                             <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2 mb-2"><i class="ti ti-plus text-emerald-600"></i> Add New Record</h2>
                             
@@ -139,6 +152,7 @@
                             </button>
                         </div>
 
+                        <!-- Import Card -->
                         <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm text-center">
                             <h3 class="text-sm font-bold text-gray-800 mb-2">Bulk Excel Upload</h3>
                             <p class="text-xs text-gray-400 mb-4">Upload your standard Excel sheet with matching headers.</p>
@@ -149,7 +163,9 @@
                         </div>
                     </div>
 
+                    <!-- Right: Table List & Filters -->
                     <div class="lg:col-span-2 space-y-4">
+                        <!-- Filters Panel -->
                         <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-wrap gap-3 items-center justify-between">
                             <div class="flex flex-1 min-w-[200px] bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 items-center gap-2">
                                 <i class="ti ti-search text-gray-400"></i>
@@ -168,6 +184,7 @@
                             <span id="record-count" class="text-xs font-semibold text-gray-400 bg-gray-100 px-2.5 py-1 rounded-md">0 records</span>
                         </div>
 
+                        <!-- Responsive Table Container -->
                         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse min-w-[800px]">
@@ -186,7 +203,8 @@
                                         </tr>
                                     </thead>
                                     <tbody id="tbody" class="divide-y divide-gray-50 text-sm font-medium text-gray-700">
-                                        </tbody>
+                                        <!-- Rows generated dynamically -->
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -194,6 +212,7 @@
                 </div>
             </div>
 
+            <!-- REPORTS & ANALYTICS TAB -->
             <div id="tab-reports" class="hidden space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
@@ -214,12 +233,14 @@
                 <div>
                     <h3 class="text-base font-bold text-gray-800 mb-4">Monthly Breakdown Summary</h3>
                     <div id="month-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        </div>
+                        <!-- Monthly Summary Cards -->
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- JAVASCRIPT FIREBASE LOGIC BLOCK -->
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -312,6 +333,21 @@
       document.getElementById('profit-preview').textContent = '0.00';
     };
 
+    // Helper function to convert Excel serial date numbers to YYYY-MM-DD
+    function convertExcelDate(excelSerial) {
+      const serial = parseFloat(excelSerial);
+      if (isNaN(serial)) return null;
+      // Excel incorrectly considers 1900 as a leap year, so epoch correction is needed
+      const utc_days  = Math.floor(serial - 25569);
+      const utc_value = utc_days * 86400;
+      const date_info = new Date(utc_value * 1000);
+      
+      const y = date_info.getFullYear();
+      const m = String(date_info.getMonth() + 1).padStart(2, '0');
+      const d = String(date_info.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
     window.handleImportFile = (event) => {
       const file = event.target.files[0];
       if (!file) return;
@@ -349,7 +385,12 @@
             const cleanDelivery = parseFloat(deliveryRaw) || 0;
             
             let formattedDate = dateRaw;
-            if (typeof dateRaw === 'string' && dateRaw.includes('-')) {
+            
+            // Check if the excel date is a raw serial number (e.g. 44213)
+            if (!isNaN(parseFloat(dateRaw)) && isFinite(dateRaw)) {
+              const converted = convertExcelDate(dateRaw);
+              if (converted) formattedDate = converted;
+            } else if (typeof dateRaw === 'string' && dateRaw.includes('-')) {
               const parts = dateRaw.split('-');
               if (parts[0].length <= 2 && parts[2].length === 2) {
                 formattedDate = `20${parts[2]}-${parts[1]}-${parts[0]}`;
@@ -389,6 +430,7 @@
 
     window.saveInlineEdit = async (id) => {
       const row = entries.find(e => e.id === id);
+      const date = document.getElementById(`edit-date-${id}`).value;
       const company = document.getElementById(`edit-comp-${id}`).value.trim().toUpperCase();
       const qty = parseFloat(document.getElementById(`edit-qty-${id}`).value)||0;
       const cost = document.getElementById(`edit-cost-${id}`) ? (parseFloat(document.getElementById(`edit-cost-${id}`).value)||0) : (row.cost || 0);
@@ -396,10 +438,10 @@
       const delivery = document.getElementById(`edit-del-${id}`) ? (parseFloat(document.getElementById(`edit-del-${id}`).value)||0) : (row.delivery || 0);
       const status = document.getElementById(`edit-status-${id}`).value;
 
-      if(!company || !sell) { alert('Fields cannot be empty'); return; }
+      if(!company || !sell || !date) { alert('Fields cannot be empty'); return; }
 
       await setDoc(doc(db, "users", currentUser.uid, "entries", id), {
-        ...row, company, qty, cost, sell, delivery, status, profit: sell - cost - delivery
+        ...row, date, company, qty, cost, sell, delivery, status, profit: sell - cost - delivery
       });
       inlineEditingId = null;
     };
@@ -426,10 +468,20 @@
       tbody.innerHTML = filtered.map(e => {
         const isEditing = inlineEditingId === e.id;
         const itemClass = ITEMS[e.item] || 'other';
+
+        // Fix and convert YYYY-MM-DD format to DD-MM-YYYY for display
+        let displayDate = e.date;
+        if (e.date && e.date.includes('-')) {
+          const parts = e.date.split('-');
+          if (parts.length === 3 && parts[0].length === 4) {
+            displayDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+          }
+        }
+
         if (isEditing) {
           return `
             <tr class="bg-slate-50">
-              <td class="p-3">${e.date}</td>
+              <td class="p-3"><input type="date" id="edit-date-${e.id}" class="border rounded px-2 py-1 text-xs" value="${e.date}"></td>
               <td class="p-3"><input type="text" id="edit-comp-${e.id}" class="border rounded px-2 py-1 w-full text-xs font-bold" value="${e.company}"></td>
               <td class="p-3">${e.item}</td>
               <td class="p-3"><input type="number" id="edit-qty-${e.id}" class="border rounded px-2 py-1 w-16 text-xs" value="${e.qty}"></td>
@@ -452,7 +504,7 @@
 
         return `
           <tr class="hover:bg-gray-50/80 transition">
-            <td class="p-4 text-gray-500 font-normal">${e.date}</td>
+            <td class="p-4 text-gray-500 font-medium">${displayDate}</td>
             <td class="p-4 font-bold text-gray-900">${e.company}</td>
             <td class="p-4"><span class="px-2 py-1 rounded-md text-xs font-bold badge-${itemClass}">${e.item}</span></td>
             <td class="p-4 text-gray-600">${(e.qty||0).toLocaleString()}</td>

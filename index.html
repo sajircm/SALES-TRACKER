@@ -87,7 +87,8 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Company Name</label>
-                                <input type="text" id="f-company" placeholder="e.g. BLUE TAG L.L.C" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+                                <input type="text" id="f-company" list="company-suggestions" placeholder="e.g. BLUE TAG L.L.C" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+                                <datalist id="company-suggestions"></datalist>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
@@ -210,7 +211,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="tbody" class="divide-y divide-gray-50 text-sm font-medium text-gray-700">
-                                        </tbody>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -241,7 +242,7 @@
                         <i class="ti ti-calendar-stats text-emerald-600"></i> Monthly Breakdown Summary
                     </h3>
                     <div id="month-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -621,16 +622,29 @@
 
     function updateStats() {
       let rev = 0, cost = 0, del = 0, prof = 0, pending = 0;
-      // HEADER TOP COUNTERS WILL NOW ALSO FILTER ON ACTIVE DROPDOWN
       const filtered = getFilteredEntries();
+      
       filtered.forEach(e => {
-        rev += e.sell; cost += e.cost; del += e.delivery; prof += e.profit;
-        if (e.status === 'PENDING') pending += e.sell;
+        rev += (e.sell || 0); 
+        cost += (e.cost || 0); 
+        del += (e.delivery || 0); 
+        prof += (e.profit || 0);
+        if (e.status === 'PENDING') pending += (e.sell || 0);
       });
+      
       document.getElementById('stat-revenue').textContent = rev.toFixed(2);
       document.getElementById('stat-cost').textContent = cost.toFixed(2);
       document.getElementById('stat-pending').textContent = pending.toFixed(2);
       document.getElementById('stat-profit').textContent = prof.toFixed(2);
+    }
+
+    function updateAddRecordCompanySuggestions() {
+      const filtered = getFilteredEntries();
+      const uniqueCompanies = [...new Set(filtered.map(e => e.company))].filter(Boolean).sort();
+      const datalist = document.getElementById('company-suggestions');
+      if (datalist) {
+        datalist.innerHTML = uniqueCompanies.map(comp => `<option value="${comp}"></option>`).join('');
+      }
     }
 
     function renderMonthly() {
@@ -725,6 +739,7 @@
     function renderAll() { 
       updateStats(); 
       window.renderTable(); 
+      updateAddRecordCompanySuggestions();
       calculateAnalytics(); 
       renderMonthly();
       if (document.getElementById('tab-reports').classList.contains('hidden') === false) {

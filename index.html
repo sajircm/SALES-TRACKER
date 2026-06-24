@@ -217,7 +217,36 @@
                 </div>
             </div>
 
+            <!-- 📊 REPORTS & ANALYTICS TAB -->
             <div id="tab-reports" class="hidden space-y-8">
+                
+                <!-- 🌟 NEW: Reports Filter Bar -->
+                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-wrap items-center gap-3">
+                    <span class="text-sm font-bold text-gray-700 flex items-center gap-1.5">
+                        <i class="ti ti-filter text-emerald-600"></i> Filter Analytics:
+                    </span>
+                    
+                    <select id="rep-filter-month" onchange="switchTab('reports')" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none text-gray-600">
+                        <option value="">All Months</option>
+                        <option value="01">Jan</option>
+                        <option value="02">Feb</option>
+                        <option value="03">Mar</option>
+                        <option value="04">Apr</option>
+                        <option value="05">May</option>
+                        <option value="06">Jun</option>
+                        <option value="07">Jul</option>
+                        <option value="08">Aug</option>
+                        <option value="09">Sep</option>
+                        <option value="10">Oct</option>
+                        <option value="11">Nov</option>
+                        <option value="12">Dec</option>
+                    </select>
+
+                    <select id="rep-filter-year" onchange="switchTab('reports')" class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none text-gray-600">
+                        <option value="">All Years</option>
+                    </select>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                         <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Profit Trend over Months</h3>
@@ -240,7 +269,7 @@
                         <i class="ti ti-calendar-stats text-emerald-600"></i> Monthly Breakdown Summary
                     </h3>
                     <div id="month-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -328,11 +357,20 @@
         Array.from(types).map(t => `<option value="${t}">${t}</option>`).join('');
       filterSel.value = currentType;
 
+      const yearOptions = '<option value="">All Years</option>' + 
+        Array.from(years).sort((a,b)=>b-a).map(y => `<option value="${y}">${y}</option>`).join('');
+
+      // Update Dashboard Year Filter
       const yearSel = document.getElementById('filter-year');
       const currentYear = yearSel.value;
-      yearSel.innerHTML = '<option value="">All Years</option>' + 
-        Array.from(years).sort((a,b)=>b-a).map(y => `<option value="${y}">${y}</option>`).join('');
+      yearSel.innerHTML = yearOptions;
       yearSel.value = currentYear;
+
+      // 🌟 NEW: Update Reports Year Filter
+      const repYearSel = document.getElementById('rep-filter-year');
+      const currentRepYear = repYearSel.value;
+      repYearSel.innerHTML = yearOptions;
+      repYearSel.value = currentRepYear;
     }
 
     window.calcProfit = () => {
@@ -595,12 +633,23 @@
 
     function calculateAnalytics() {
       if (!entries.length) return;
+      const mFilter = document.getElementById('rep-filter-month').value;
+      const yFilter = document.getElementById('rep-filter-year').value;
+
       const clientMap = {}; const productMap = {};
+      
       entries.forEach(e => {
+        if (e.date && e.date.includes('-')) {
+          const [y, m] = e.date.split('-');
+          if (yFilter && y !== yFilter) return;
+          if (mFilter && m !== mFilter) return;
+        } else if (yFilter || mFilter) return;
+
         clientMap[e.company] = (clientMap[e.company]||0) + e.profit;
         const q = parseFloat(e.qty) || 0;
         productMap[e.item] = (productMap[e.item]||0) + q;
       });
+      
       const topClient = Object.keys(clientMap).reduce((a, b) => clientMap[a] > clientMap[b] ? a : b, "None");
       const topProduct = Object.keys(productMap).reduce((a, b) => productMap[a] > productMap[b] ? a : b, "None");
       document.getElementById('analytics-client').innerHTML = topClient !== "None" ? `${topClient} <span class="text-emerald-600 text-xs font-bold">(Profit: AED ${clientMap[topClient].toFixed(2)})</span>` : "No data";
@@ -619,19 +668,34 @@
       document.getElementById('stat-profit').textContent = prof.toFixed(2);
     }
 
+    // 🌟 UPDATED: Month Cards strictly sorted by Chronological Order & Filter Applied
     function renderMonthly() {
+      const mFilter = document.getElementById('rep-filter-month').value;
+      const yFilter = document.getElementById('rep-filter-year').value;
       const map = {};
+      
       entries.forEach(e => {
         if (!e.date) return;
         const [y, m] = e.date.split('-');
         if (!m || !y) return;
+        
+        if (yFilter && y !== yFilter) return;
+        if (mFilter && m !== mFilter) return;
+
         const key = y + '-' + parseInt(m);
         if (!map[key]) map[key] = { year: y, month: parseInt(m), profit: 0, count: 0 };
         map[key].profit += e.profit; map[key].count++;
       });
+      
       const el = document.getElementById('month-grid');
-      const keys = Object.keys(map).sort();
-      if(!keys.length) { el.innerHTML = '<div class="text-sm font-semibold text-gray-400">No entries recorded.</div>'; return; }
+      const keys = Object.keys(map).sort((a, b) => {
+        const [yearA, monthA] = a.split('-').map(Number);
+        const [yearB, monthB] = b.split('-').map(Number);
+        if (yearA !== yearB) return yearA - yearB;
+        return monthA - monthB;
+      });
+      
+      if(!keys.length) { el.innerHTML = '<div class="text-sm font-semibold text-gray-400">No entries recorded for this filter.</div>'; return; }
       
       el.innerHTML = keys.map(k => `
         <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition duration-200 flex justify-between items-center">
@@ -649,15 +713,24 @@
       `).join('');
     }
 
+    // 🌟 UPDATED: Line Chart with Filter Applied
     let chartObj = null;
     function renderChart() {
+      const mFilter = document.getElementById('rep-filter-month').value;
+      const yFilter = document.getElementById('rep-filter-year').value;
       const map = {};
+      
       entries.forEach(e => {
         if(!e.date) return;
         const [y, m] = e.date.split('-');
+        
+        if (yFilter && y !== yFilter) return;
+        if (mFilter && m !== mFilter) return;
+
         const key = y + '-' + m;
         map[key] = (map[key]||0) + e.profit;
       });
+      
       const keys = Object.keys(map).sort();
       const ctx = document.getElementById('profit-chart');
       if (!ctx) return;
